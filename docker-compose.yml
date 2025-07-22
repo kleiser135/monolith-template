@@ -1,0 +1,29 @@
+# Docker Compose for board-game-matcher
+
+# Defines the services (containers) that make up our app
+services:
+  # The PostgreSQL database service
+  postgres:
+    # Use the official PostgreSQL image, specifying a version for consistency
+    image: postgres:15-alpine
+    # A friendly name for our container
+    container_name: board-game-matcher-db
+    # Environment variables for database configuration
+    # These should be moved to a .env file for production, but are fine here for local development.
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_db
+    # Maps port 5432 on the host to port 5432 in the container
+    ports:
+      - "5432:5432"
+    # Mounts a volume to persist database data across container restarts
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Ensures the database service is restarted automatically if it fails
+    restart: always
+
+# Defines the volumes used by our services
+volumes:
+  # The named volume for persisting PostgreSQL data
+  postgres_data:
