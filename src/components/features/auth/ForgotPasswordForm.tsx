@@ -16,8 +16,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { forgotPasswordSchema } from "@/lib/validators"
+import apiClient from "@/lib/api-client"
+import { useState } from "react"
 
 export function ForgotPasswordForm() {
+  const [isLoading, setIsLoading] = useState(false)
   const form = useForm<z.infer<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -25,15 +28,20 @@ export function ForgotPasswordForm() {
     },
   })
 
-  function onSubmit(data: z.infer<typeof forgotPasswordSchema>) {
-    // We'll add real submission logic later.
-    toast("Password reset link sent to:", {
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
+  async function onSubmit(data: z.infer<typeof forgotPasswordSchema>) {
+    setIsLoading(true)
+    try {
+      const response = await apiClient.post<{ message: string }>("/auth/forgot-password", data)
+      toast.success(response.message)
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        toast.error("An unexpected error occurred.")
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -53,7 +61,9 @@ export function ForgotPasswordForm() {
               </FormItem>
             )}
           />
-          <Button type="submit">Send Reset Link</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Sending..." : "Send Reset Link"}
+          </Button>
         </form>
       </Form>
     </div>

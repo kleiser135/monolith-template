@@ -9,15 +9,18 @@ const apiClient = {
       },
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Use the error message from the API if available
+      throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
 
-    return response.json() as Promise<T>;
+    return data as T;
   },
 
   post: async <T>(url: string, body: Record<string, unknown>): Promise<T> => {
-    const response = await fetch(url, {
+    const response = await fetch(`/api${url}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,11 +28,14 @@ const apiClient = {
       body: JSON.stringify(body),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Use the error message from the API if available
+      throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
 
-    return response.json() as Promise<T>;
+    return data as T;
   },
   
   // We can add put, patch, delete methods later as needed

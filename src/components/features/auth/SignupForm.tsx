@@ -62,7 +62,17 @@ export function SignupForm() {
   return (
     <div className="w-full max-w-md">
       <Form {...form}>
-        <form action={formAction} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(() => {
+            const formData = new FormData();
+            const values = form.getValues();
+            formData.append("email", values.email);
+            formData.append("password", values.password);
+            formData.append("confirmPassword", values.confirmPassword);
+            formAction(formData);
+          })}
+          className="space-y-6"
+        >
           <FormField
             control={form.control}
             name="email"

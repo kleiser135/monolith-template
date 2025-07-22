@@ -12,7 +12,17 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
-    ignores: ["**/generated/**"],
+    ignores: [
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/out/**",
+      "**/build/**",
+      "**/dist/**",
+      "**/.vercel/**",
+      "**/*.pem",
+      "**/*.tsbuildinfo",
+      "**/generated/**"
+    ],
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",
