@@ -171,6 +171,37 @@ export async function logout() {
   revalidatePath('/');
 }
 
+export async function deleteAccount(): Promise<{ success: boolean; message: string }> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token');
+
+  if (!token) {
+    return { success: false, message: 'Authentication required.' };
+  }
+
+  try {
+    const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as { userId: string };
+
+    // Prisma's onDelete: Cascade should handle related tokens, but we do this explicitly
+    await prisma.$transaction([
+      prisma.passwordResetToken.deleteMany({ where: { userId: decoded.userId } }),
+      prisma.emailVerificationToken.deleteMany({ where: { userId: decoded.userId } }),
+      prisma.user.delete({ where: { id: decoded.userId } }),
+    ]);
+
+    // Log the user out
+    cookieStore.delete('token');
+    revalidatePath('/');
+    
+    return { success: true, message: 'Account deleted successfully.' };
+  } catch (error) {
+    return {
+      message: 'An unexpected error occurred.',
+      success: false,
+    };
+  }
+}
+
 export async function changePassword(
   prevState: ChangePasswordState,
   formData: FormData

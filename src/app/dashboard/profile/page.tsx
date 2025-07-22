@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 import { ChangePasswordForm } from '@/components/features/auth/ChangePasswordForm';
+import { DeleteAccountDialog } from '@/components/features/auth/DeleteAccountDialog';
 
 interface JwtPayload {
   userId: string;
@@ -55,6 +56,16 @@ export default async function ProfilePage() {
       <div>
         <h2 className="text-2xl font-bold mb-4">Change Password</h2>
         <ChangePasswordForm />
+      </div>
+
+      <hr className="my-8" />
+
+      <div className="rounded-lg border border-destructive bg-card p-6">
+        <h2 className="text-2xl font-bold mb-4 text-destructive">Danger Zone</h2>
+        <p className="text-muted-foreground mb-4">
+          Deleting your account is a permanent action and cannot be undone.
+        </p>
+        <DeleteAccountDialog />
       </div>
     </div>
   );
