@@ -249,7 +249,7 @@ export async function changePassword(
     });
 
     return { success: true, message: 'Password changed successfully.' };
-  } catch (error) {
+  } catch (_error) {
     return {
       message: 'An unexpected error occurred.',
       success: false,

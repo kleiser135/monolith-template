@@ -24,7 +24,7 @@ async function getUser() {
       select: { email: true, name: true },
     });
     return user;
-  } catch (error) {
+  } catch (_error) {
     // Invalid token, treat as unauthenticated
     return null;
   }
