@@ -23,10 +23,6 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
-      // Note: We return a 200 OK response even if the user is not found
-      // to prevent email enumeration attacks. The test expects a 404,
-      // which we will address in the refactor step. For now, we are just
-      // making the code work. This is a deliberate choice in the Green step.
       return NextResponse.json({ message: 'If a user with that email exists, a password reset link has been sent.' }, { status: 200 });
     }
 
