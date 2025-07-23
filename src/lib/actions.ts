@@ -194,7 +194,7 @@ export async function deleteAccount(): Promise<{ success: boolean; message: stri
     revalidatePath('/');
     
     return { success: true, message: 'Account deleted successfully.' };
-  } catch (error) {
+  } catch (_error) {
     return {
       message: 'An unexpected error occurred.',
       success: false,
