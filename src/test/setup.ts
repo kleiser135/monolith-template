@@ -2,7 +2,7 @@ import { afterEach, vi, beforeEach } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import dotenv from 'dotenv'
-import { mockDeep, mockReset, DeepMockProxy } from 'vitest-mock-extended'
+import { mockDeep, mockReset} from 'vitest-mock-extended'
 import { PrismaClient } from '@prisma/client'
 
 dotenv.config({ path: '.env' })
