@@ -2,9 +2,12 @@ import { defineConfig } from "cypress";
 
 export default defineConfig({
   e2e: {
-    baseUrl: 'http://localhost:3000',
+    baseUrl: "http://localhost:3000",
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      // The Percy healthcheck task is no longer required
+      // and was causing the error.
+      // It is handled automatically by the plugin.
+      return config;
     },
   },
 });
