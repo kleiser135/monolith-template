@@ -3,14 +3,18 @@ import type { NextRequest } from 'next/server'
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  // NOTE: This is a placeholder. We will add logic here to check for an
-  // authentication token (e.g., from a cookie) once we set up Supabase.
-  const isAuthenticated = false; // Placeholder
+  const token = request.cookies.get('token');
+  const isAuthenticated = !!token;
 
-  const publicRoutes = ['/login'];
-  const protectedRoutes = ['/dashboard'];
+  const publicRoutes = ['/login', '/signup', '/forgot-password', '/reset-password', '/email-verification'];
+  const protectedRoutes = ['/dashboard', '/'];
 
   const { pathname } = request.nextUrl;
+
+  // Special case: If user is authenticated and at the root, redirect to dashboard
+  if (isAuthenticated && pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
 
   // If user is not authenticated and is trying to access a protected route,
   // redirect them to the login page.
@@ -18,9 +22,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // If user is authenticated and is trying to access a public-only route,
+  // If user is authenticated and is trying to access a public-only route (e.g., login page),
   // redirect them to the dashboard.
-  if (isAuthenticated && publicRoutes.some(route => pathname.startsWith(route))) {
+  if (isAuthenticated && publicRoutes.some(route => pathname.startsWith(route) && route !== '/')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

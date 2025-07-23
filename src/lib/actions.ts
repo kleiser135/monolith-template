@@ -3,8 +3,14 @@
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { loginSchema, signupSchema } from '@/lib/validators';
+import {
+  loginSchema,
+  signupSchema,
+  changePasswordSchema,
+} from "@/lib/validators";
 import { cookies } from 'next/headers';
+import crypto from 'crypto';
+import { revalidatePath } from 'next/cache';
 
 type LoginState = {
   message?: string | null;
@@ -20,6 +26,16 @@ type SignupState = {
   errors?: {
     email?: string[];
     password?: string[];
+    confirmPassword?: string[];
+  };
+  success: boolean;
+};
+
+type ChangePasswordState = {
+  message?: string | null;
+  errors?: {
+    currentPassword?: string[];
+    newPassword?: string[];
     confirmPassword?: string[];
   };
   success: boolean;
@@ -117,17 +133,122 @@ export async function signup(
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
       },
     });
 
+    // Create an email verification token
+    const token = crypto.randomBytes(32).toString('hex');
+    await prisma.emailVerificationToken.create({
+      data: {
+        userId: user.id,
+        token,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      },
+    });
+
+    // In a real app, you'd send an email here.
+    console.log(`Email verification link for ${email}: /email-verification?token=${token}`);
+
     return {
       success: true,
-      message: 'Account created successfully! Please log in.',
+      message: 'Account created! Please check your email to verify your account.',
     };
+  } catch (_error) {
+    return {
+      message: 'An unexpected error occurred.',
+      success: false,
+    };
+  }
+}
+
+export async function logout() {
+  const cookieStore = await cookies();
+  cookieStore.delete('token');
+  revalidatePath('/');
+}
+
+export async function deleteAccount(): Promise<{ success: boolean; message: string }> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token');
+
+  if (!token) {
+    return { success: false, message: 'Authentication required.' };
+  }
+
+  try {
+    const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as { userId: string };
+
+    // Prisma's onDelete: Cascade should handle related tokens, but we do this explicitly
+    await prisma.$transaction([
+      prisma.passwordResetToken.deleteMany({ where: { userId: decoded.userId } }),
+      prisma.emailVerificationToken.deleteMany({ where: { userId: decoded.userId } }),
+      prisma.user.delete({ where: { id: decoded.userId } }),
+    ]);
+
+    // Log the user out
+    cookieStore.delete('token');
+    revalidatePath('/');
+    
+    return { success: true, message: 'Account deleted successfully.' };
+  } catch (_error) {
+    return {
+      message: 'An unexpected error occurred.',
+      success: false,
+    };
+  }
+}
+
+export async function changePassword(
+  prevState: ChangePasswordState,
+  formData: FormData
+): Promise<ChangePasswordState> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token');
+
+  if (!token) {
+    return { success: false, message: 'Authentication required.' };
+  }
+
+  const validation = changePasswordSchema.safeParse(Object.fromEntries(formData));
+
+  if (!validation.success) {
+    return {
+      errors: validation.error.flatten().fieldErrors,
+      success: false,
+    };
+  }
+
+  const { currentPassword, newPassword } = validation.data;
+
+  try {
+    const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as { userId: string };
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+    });
+
+    if (!user) {
+      return { success: false, message: 'User not found.' };
+    }
+
+    const passwordsMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!passwordsMatch) {
+      return { success: false, message: 'Incorrect current password.' };
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedNewPassword },
+    });
+
+    return { success: true, message: 'Password changed successfully.' };
   } catch (_error) {
     return {
       message: 'An unexpected error occurred.',
