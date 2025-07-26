@@ -10,10 +10,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends(
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended"
-  ),
+  // Global ignores - must be first
   {
     ignores: [
       "**/node_modules/**",
@@ -25,12 +22,21 @@ const eslintConfig = [
       "**/*.pem",
       "**/*.tsbuildinfo",
       "**/generated/**",
-      ".next/**",
-      ".next/types/**",
       "**/coverage/**",
       "**/test-results/**",
-      "**/playwright-report/**"
-    ],
+      "**/playwright-report/**",
+      // Be extra explicit about .next directory
+      ".next",
+      ".next/**/*",
+      "**/.next/**/*"
+    ]
+  },
+  // Main configuration
+  ...compat.extends(
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended"
+  ),
+  {
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",
