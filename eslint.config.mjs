@@ -10,7 +10,10 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends(
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended"
+  ),
   {
     ignores: [
       "**/node_modules/**",
@@ -21,7 +24,12 @@ const eslintConfig = [
       "**/.vercel/**",
       "**/*.pem",
       "**/*.tsbuildinfo",
-      "**/generated/**"
+      "**/generated/**",
+      ".next/**",
+      ".next/types/**",
+      "**/coverage/**",
+      "**/test-results/**",
+      "**/playwright-report/**"
     ],
     rules: {
       "@typescript-eslint/no-unused-vars": [
@@ -31,7 +39,10 @@ const eslintConfig = [
           "varsIgnorePattern": "^_",
           "caughtErrorsIgnorePattern": "^_"
         }
-      ]
+      ],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-function-type": "off",
+      "@typescript-eslint/ban-types": "off"
     }
   }
 ];

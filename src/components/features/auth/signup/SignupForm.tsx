@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input/input"
 import { toast } from "sonner"
 import { signupSchema } from "@/lib/validators"
-import { useActionState, useEffect, useTransition } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { signup } from "@/lib/actions"
 import { useRouter } from "next/navigation"
 
@@ -38,7 +38,7 @@ const initialState: State = {
 }
 
 export function SignupForm() {
-  const [state, formAction] = useActionState(signup, initialState)
+  const [state, setState] = useState(initialState);
   const [isPending, startTransition] = useTransition();
   const router = useRouter()
   const form = useForm<SignupFormValues>({
@@ -61,12 +61,13 @@ export function SignupForm() {
   }, [state, router])
 
   const onSubmit = (values: SignupFormValues) => {
-    startTransition(() => {
+    startTransition(async () => {
       const formData = new FormData();
       formData.append("email", values.email);
       formData.append("password", values.password);
       formData.append("confirmPassword", values.confirmPassword);
-      formAction(formData);
+      const result = await signup(initialState, formData);
+      setState(result);
     });
   };
 
