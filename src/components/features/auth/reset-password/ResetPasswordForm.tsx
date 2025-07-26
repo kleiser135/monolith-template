@@ -48,9 +48,12 @@ export function ResetPasswordForm() {
       });
       toast.success(response.message);
       router.push('/login');
-    } catch (error: any) {
-      const message = error.response?.data?.message || "An unexpected error occurred.";
-      toast.error(message);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setIsLoading(false);
     }
