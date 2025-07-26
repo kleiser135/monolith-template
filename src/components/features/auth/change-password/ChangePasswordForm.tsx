@@ -14,21 +14,26 @@ import {
 } from "@/components/ui/form/form";
 import { Input } from "@/components/ui/input/input";
 import { toast } from "sonner";
-import { useActionState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { changePassword } from "@/lib/actions";
 import { changePasswordSchema } from "@/lib/validators";
 
 type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 
-const initialState = {
+const initialState: {
+  message?: string | null | undefined;
+  errors?: any;
+  success: boolean;
+} = {
   message: null,
   errors: undefined,
   success: false,
 };
 
 export function ChangePasswordForm() {
-  const [state, formAction, isPending] = useActionState(changePassword, initialState);
-  
+  const [state, setState] = useState(initialState);
+  const [isPending, setIsPending] = useState(false);
+
   const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
@@ -37,6 +42,17 @@ export function ChangePasswordForm() {
       confirmPassword: "",
     },
   });
+
+  const onSubmit = async (values: ChangePasswordFormValues) => {
+    setIsPending(true);
+    const formData = new FormData();
+    formData.append("currentPassword", values.currentPassword);
+    formData.append("newPassword", values.newPassword);
+    formData.append("confirmPassword", values.confirmPassword);
+    const result = await changePassword(initialState, formData);
+    setState(result);
+    setIsPending(false);
+  };
 
   useEffect(() => {
     if (state.success) {
@@ -50,7 +66,7 @@ export function ChangePasswordForm() {
 
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="currentPassword"
