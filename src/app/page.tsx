@@ -1,9 +1,9 @@
 // "use client" // No longer needed as we remove the onClick handler
 
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Button } from "@/components/ui/button/button";
 
-export default function HomePage() {
+export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
       <h1 className="text-4xl font-bold tracking-tight lg:text-5xl">

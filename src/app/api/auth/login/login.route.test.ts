@@ -56,6 +56,8 @@ describe('API - Login Endpoint', () => {
       id: 'some-user-id',
       email: 'test@example.com',
       password: hashedPassword,
+      name: null,
+      emailVerified: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -81,11 +83,13 @@ describe('API - Login Endpoint', () => {
       id: 'some-user-id',
       email: 'test@example.com',
       password: 'hashed-password', // The actual hash doesn't matter here
+      name: null,
+      emailVerified: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
     vi.mocked(prisma.user.findUnique).mockResolvedValue(user);
-    vi.mocked(bcrypt.compare).mockResolvedValue(true); // Mock successful password check
+    vi.mocked(bcrypt.compare).mockImplementation(() => Promise.resolve(true)); // Mock successful password check
 
     const request = new NextRequest('http://localhost/api/auth/login', {
       method: 'POST',
@@ -104,5 +108,33 @@ describe('API - Login Endpoint', () => {
     expect(cookie).toBeDefined();
     expect(cookie).toContain('token=');
     expect(cookie).toContain('HttpOnly');
+  });
+
+  it('should return 400 if validation fails', async () => {
+    const request = new NextRequest('http://localhost/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: 'not-an-email',
+        password: 'password123',
+      }),
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+  });
+
+  it('should return 500 if there is a server error', async () => {
+    vi.mocked(prisma.user.findUnique).mockRejectedValue(new Error('Database error'));
+
+    const request = new NextRequest('http://localhost/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: 'test@example.com',
+        password: 'password123',
+      }),
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(500);
   });
 });

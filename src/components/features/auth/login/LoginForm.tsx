@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button/button";
 import {
   Form,
   FormControl,
@@ -11,11 +11,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/components/ui/form/form";
+import { Input } from "@/components/ui/input/input";
 import { loginSchema } from "@/lib/validators";
-import { useEffect } from "react";
-import { useActionState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/actions";
@@ -38,7 +37,8 @@ const initialState: State = {
 };
 
 export function LoginForm() {
-  const [state, formAction, isPending] = useActionState(login, initialState);
+  const [state, setState] = useState(initialState);
+  const [isPending, setIsPending] = useState(false);
   const router = useRouter();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -58,9 +58,19 @@ export function LoginForm() {
     }
   }, [state, router]);
 
+  const onSubmit = async (values: LoginFormValues) => {
+    setIsPending(true);
+    const formData = new FormData();
+    formData.append("email", values.email);
+    formData.append("password", values.password);
+    const result = await login(initialState, formData);
+    setState(result);
+    setIsPending(false);
+  };
+
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"

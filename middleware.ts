@@ -6,8 +6,8 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('token');
   const isAuthenticated = !!token;
 
-  const publicRoutes = ['/login', '/signup', '/forgot-password', '/reset-password', '/email-verification'];
-  const protectedRoutes = ['/dashboard', '/'];
+  const publicRoutes = ['/login', '/signup', '/forgot-password', 'reset-password', '/email-verification'];
+  const protectedRoutes = ['/dashboard', '/settings'];
 
   const { pathname } = request.nextUrl;
 
@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
   if (isAuthenticated && pathname === '/') {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
-
+  
   // If user is not authenticated and is trying to access a protected route,
   // redirect them to the login page.
   if (!isAuthenticated && protectedRoutes.some(route => pathname.startsWith(route))) {
@@ -24,7 +24,7 @@ export function middleware(request: NextRequest) {
 
   // If user is authenticated and is trying to access a public-only route (e.g., login page),
   // redirect them to the dashboard.
-  if (isAuthenticated && publicRoutes.some(route => pathname.startsWith(route) && route !== '/')) {
+  if (isAuthenticated && publicRoutes.some(route => pathname.startsWith(route))) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

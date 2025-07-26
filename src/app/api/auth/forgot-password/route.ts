@@ -22,8 +22,24 @@ export async function POST(req: NextRequest) {
       where: { email },
     });
 
+    // To prevent user enumeration, always return a generic success message
+    const successResponse = { message: 'If a user with that email exists, a password reset link has been sent.' };
+
     if (!user) {
-      return NextResponse.json({ message: 'If a user with that email exists, a password reset link has been sent.' }, { status: 200 });
+      return NextResponse.json(successResponse, { status: 200 });
+    }
+
+    const existingToken = await prisma.passwordResetToken.findFirst({
+        where: {
+            userId: user.id,
+            expiresAt: {
+                gt: new Date(),
+            }
+        }
+    });
+
+    if(existingToken) {
+        return NextResponse.json(successResponse, { status: 200 });
     }
 
     // Generate a reset token
@@ -46,7 +62,12 @@ export async function POST(req: NextRequest) {
     // We will simulate this for now.
     console.log(`Password reset link for ${email}: /reset-password?token=${resetToken}`);
 
-    return NextResponse.json({ message: 'Password reset email sent' }, { status: 200 });
+    // For test environments, return the token to facilitate E2E testing
+    if (process.env.NODE_ENV !== 'production') {
+      return NextResponse.json({ ...successResponse, token: resetToken }, { status: 200 });
+    }
+
+    return NextResponse.json(successResponse, { status: 200 });
 
   } catch (error) {
     console.error('Forgot password error:', error);

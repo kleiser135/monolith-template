@@ -1,9 +1,9 @@
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import jwt from 'jsonwebtoken';
-import { ChangePasswordForm } from '@/components/features/auth/ChangePasswordForm';
-import { DeleteAccountDialog } from '@/components/features/auth/DeleteAccountDialog';
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import jwt from "jsonwebtoken";
+import { ChangePasswordForm } from "@/components/features/auth/change-password/ChangePasswordForm";
+import { DeleteAccountDialog } from "@/components/features/auth/delete-account/DeleteAccountDialog";
 
 interface JwtPayload {
   userId: string;
@@ -35,6 +35,7 @@ export default async function ProfilePage() {
 
   if (!user) {
     redirect('/login');
+    return null;
   }
 
   return (
