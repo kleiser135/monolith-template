@@ -46,3 +46,11 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Cypress
+/cypress/screenshots/
+/cypress/videos/
+/cypress/reports/
+/cypress/fixtures/example.json
+cypress.config.ts.orig
+/cypress/downloads/

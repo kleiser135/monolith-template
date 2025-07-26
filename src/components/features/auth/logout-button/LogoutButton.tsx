@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button/button";
 import { logout } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -12,7 +12,7 @@ export function LogoutButton() {
   const handleClick = () => {
     startTransition(async () => {
       await logout();
-      router.refresh();
+      router.push('/');
     });
   };
 
