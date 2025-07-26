@@ -46,6 +46,7 @@ function DropdownMenuContent({
           className
         )}
         {...props}
+        data-testid="dropdown-menu-content"
       />
     </DropdownMenuPrimitive.Portal>
   )

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button/button"
 import {
   Form,
   FormControl,
@@ -11,11 +11,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/form/form"
+import { Input } from "@/components/ui/input/input"
 import { toast } from "sonner"
 import { signupSchema } from "@/lib/validators"
-import { useActionState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { signup } from "@/lib/actions"
 import { useRouter } from "next/navigation"
 
@@ -38,7 +38,8 @@ const initialState: State = {
 }
 
 export function SignupForm() {
-  const [state, formAction, isPending] = useActionState(signup, initialState)
+  const [state, setState] = useState(initialState);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter()
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -59,18 +60,22 @@ export function SignupForm() {
     }
   }, [state, router])
 
+  const onSubmit = (values: SignupFormValues) => {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("email", values.email);
+      formData.append("password", values.password);
+      formData.append("confirmPassword", values.confirmPassword);
+      const result = await signup(initialState, formData);
+      setState(result);
+    });
+  };
+
   return (
     <div className="w-full max-w-md">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(() => {
-            const formData = new FormData();
-            const values = form.getValues();
-            formData.append("email", values.email);
-            formData.append("password", values.password);
-            formData.append("confirmPassword", values.confirmPassword);
-            formAction(formData);
-          })}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6"
         >
           <FormField
@@ -126,7 +131,12 @@ export function SignupForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" disabled={isPending}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isPending}
+            data-testid="signup-submit"
+          >
             {isPending ? "Creating account..." : "Create Account"}
           </Button>
         </form>

@@ -1,2 +1,28 @@
-# Ignore generated Prisma client
-src/generated/* 
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+.next/**
+out/
+
+# Build outputs
+build/
+dist/
+
+# Deployment
+.vercel/
+
+# Environment files
+*.pem
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Generated files
+generated/
+
+# Test outputs
+coverage/
+test-results/
+playwright-report/ 

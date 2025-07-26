@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button/button";
 import {
   Form,
   FormControl,
@@ -11,23 +11,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/form/form";
+import { Input } from "@/components/ui/input/input";
 import { toast } from "sonner"
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
 import apiClient from "@/lib/api-client"
 import { useRouter } from "next/navigation"
-
-// This would typically be in a validators file
-const resetPasswordSchema = z.object({
-  password: z.string().min(8, { message: "Password must be at least 8 characters long." }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
-
+import { resetPasswordSchema } from "@/lib/validators";
 
 export function ResetPasswordForm() {
   const router = useRouter();

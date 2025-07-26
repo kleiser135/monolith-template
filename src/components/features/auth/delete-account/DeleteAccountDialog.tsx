@@ -10,12 +10,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { useTransition } from "react";
+} from "@/components/ui/alert-dialog/alert-dialog";
+import { Button } from "@/components/ui/button/button";
 import { deleteAccount } from "@/lib/actions";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function DeleteAccountDialog() {
   const [isPending, startTransition] = useTransition();
