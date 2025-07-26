@@ -19,6 +19,19 @@ describe('POST /api/auth/email-verification', () => {
     expect(body.message).toBe('Invalid or expired verification token.');
   });
 
+  it('should return 400 if the token is missing', async () => {
+    const request = new NextRequest('http://localhost/api/auth/email-verification', {
+      method: 'POST',
+      body: JSON.stringify({}), // Missing token
+    });
+
+    const response = await POST(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.message).toBe('Invalid token format.');
+  });
+
   it('should return 200 and mark user as verified on successful verification', async () => {
     const user = {
       id: 'user-1',
@@ -33,6 +46,7 @@ describe('POST /api/auth/email-verification', () => {
       id: 'token-1',
       token: 'valid-token',
       userId: user.id,
+      createdAt: new Date(),
       expiresAt: new Date(Date.now() + 3600000), // Expires in 1 hour
     };
 
@@ -57,5 +71,20 @@ describe('POST /api/auth/email-verification', () => {
       })
     );
     expect(prismaMock.emailVerificationToken.delete).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return 500 if there is a server error', async () => {
+    prismaMock.emailVerificationToken.findFirst.mockRejectedValue(new Error('Database error'));
+
+    const request = new NextRequest('http://localhost/api/auth/email-verification', {
+      method: 'POST',
+      body: JSON.stringify({ token: 'any-token' }),
+    });
+
+    const response = await POST(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body.message).toBe('Internal Server Error');
   });
 }); 

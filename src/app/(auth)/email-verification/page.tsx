@@ -1,11 +1,11 @@
 "use client";
 
-import { AuthLayout } from "@/components/features/auth/AuthLayout";
+import { AuthLayout } from "@/components/features/auth/shared/AuthLayout";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import apiClient from "@/lib/api-client";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button/button";
 
 function VerificationComponent() {
   const searchParams = useSearchParams();
