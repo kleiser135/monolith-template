@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button/button";
 
 export default function DashboardPage() {
+  // No client-side authentication check needed - middleware handles all security
+  // If user reaches this page, they are already authenticated by server-side middleware
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <h1 className="text-4xl font-bold">Dashboard (Protected)</h1>
