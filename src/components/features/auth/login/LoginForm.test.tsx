@@ -1,7 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LoginForm } from './LoginForm';
-import { useActionState } from 'react';
 import { toast } from 'sonner';
 
 // Mock the router
@@ -12,15 +11,12 @@ vi.mock('next/navigation', () => ({
   }),
 }));
 
-// Mock the react module to gain control over useActionState
-vi.mock('react', async (importActual) => {
-  const actual = await importActual<typeof import('react')>();
-  return {
-    ...actual,
-    useActionState: vi.fn(),
-  };
-});
+// Mock the login action
+vi.mock('@/lib/actions', () => ({
+  login: vi.fn(),
+}));
 
+// Mock sonner
 vi.mock('sonner', () => ({
   toast: {
     success: vi.fn(),
@@ -28,65 +24,95 @@ vi.mock('sonner', () => ({
   },
 }));
 
-const useActionStateMock = vi.mocked(useActionState);
-
-interface LoginState {
-  success: boolean;
-  message?: string | null;
-  errors?: {
-    email?: string[];
-    password?: string[];
-  } | null;
-}
+// Import the mocked login function
+import { login } from '@/lib/actions';
+const mockLogin = vi.mocked(login);
 
 describe('LoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Provide a default implementation for tests that don't need a specific state
-    useActionStateMock.mockReturnValue([
-      { success: false, message: null, errors: null },
-      () => new Promise<undefined>((resolve) => resolve(undefined)),
-      false,
-    ] as [LoginState, (payload: unknown) => void, boolean]);
   });
 
   it('should show success toast and redirect on successful login', async () => {
-    // Mock the state for a successful login
-    useActionStateMock.mockReturnValue([
-      { success: true, message: null, errors: null },
-      () => new Promise<undefined>((resolve) => resolve(undefined)),
-      false,
-    ] as [LoginState, (payload: unknown) => void, boolean]);
+    // Mock successful login response
+    mockLogin.mockResolvedValue({
+      success: true,
+    });
 
     render(<LoginForm />);
-    
-    expect(toast.success).toHaveBeenCalledWith('Login successful!');
-    expect(mockRouterPush).toHaveBeenCalledWith('/dashboard');
+
+    // Fill in the form
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    const submitButton = screen.getByRole('button', { name: /login/i });
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+    // Submit the form
+    fireEvent.click(submitButton);
+
+    // Wait for the async operation and useEffect to complete
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Login successful!');
+      expect(mockRouterPush).toHaveBeenCalledWith('/dashboard');
+    });
   });
 
   it('should show error toast on failed login', async () => {
-    // Mock the state for a failed login
-    useActionStateMock.mockReturnValue([
-      { success: false, message: 'Invalid credentials.', errors: null },
-      () => new Promise<undefined>((resolve) => resolve(undefined)),
-      false,
-    ] as [LoginState, (payload: unknown) => void, boolean]);
+    // Mock failed login response
+    mockLogin.mockResolvedValue({
+      success: false,
+      message: 'Invalid credentials.',
+    });
 
     render(<LoginForm />);
 
-    expect(toast.error).toHaveBeenCalledWith('Invalid credentials.');
+    // Fill in the form
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+    const submitButton = screen.getByRole('button', { name: /login/i });
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'wrongpassword' } });
+
+    // Submit the form
+    fireEvent.click(submitButton);
+
+    // Wait for the async operation and useEffect to complete
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Invalid credentials.');
+    });
   });
 
-  it('should display pending state correctly', () => {
-    useActionStateMock.mockReturnValue([
-      { success: false, message: null, errors: null },
-      () => new Promise<undefined>((resolve) => resolve(undefined)),
-      true, // isPending is true
-    ] as [LoginState, (payload: unknown) => void, boolean]);
+  it('should display pending state correctly', async () => {
+    // Mock a login that takes some time to resolve
+    let resolveLogin: (value: { success: boolean }) => void;
+    const loginPromise = new Promise<{ success: boolean }>((resolve) => {
+      resolveLogin = resolve;
+    });
+    mockLogin.mockReturnValue(loginPromise);
 
     render(<LoginForm />);
 
-    const submitButton = screen.getByRole('button', { name: /logging in.../i });
-    expect(submitButton).toBeDisabled();
+    // Fill in the form
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+    // Submit the form
+    const submitButton = screen.getByRole('button', { name: /login/i });
+    fireEvent.click(submitButton);
+
+    // Check if the button shows pending state
+    await waitFor(() => {
+      const pendingButton = screen.getByRole('button', { name: /logging in.../i });
+      expect(pendingButton).toBeDisabled();
+    });
+
+    // Resolve the promise to clean up
+    resolveLogin!({ success: true });
   });
 }); 
