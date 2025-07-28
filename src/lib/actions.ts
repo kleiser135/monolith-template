@@ -94,7 +94,8 @@ export async function login(prevState: LoginState, formData: FormData): Promise<
     return {
       success: true,
     };
-  } catch (_error) {
+  } catch (error) {
+    console.error('Login error:', error);
     return {
       message: 'An unexpected error occurred.',
       success: false,
