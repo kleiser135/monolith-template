@@ -89,7 +89,7 @@ describe('ResetPasswordForm', () => {
   it('shows an error toast if the API call fails', async () => {
     const ERROR_MESSAGE = 'Invalid or expired token.';
     renderComponent('invalid-token');
-    mockApiClientPost.mockRejectedValue({ response: { data: { message: ERROR_MESSAGE } } });
+    mockApiClientPost.mockRejectedValue(new Error(ERROR_MESSAGE));
 
     fireEvent.change(screen.getByLabelText(/^new password$/i), { target: { value: 'newPassword123' } });
     fireEvent.change(screen.getByLabelText(/confirm new password/i), { target: { value: 'newPassword123' } });
