@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/sonner/sonner";
 import { ConditionalHeader } from "@/components/layout/ConditionalHeader";
 import { Footer } from "@/components/layout/Footer";
 import { cookies } from "next/headers";
+import { TwentyFirstToolbar } from "@21st-extension/toolbar-next";
+import { ReactPlugin } from "@21st-extension/react";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -35,6 +37,7 @@ export default async function RootLayout({
           "min-h-screen bg-background font-sans antialiased",
           fontSans.variable
         )}
+        suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"
@@ -48,6 +51,12 @@ export default async function RootLayout({
             <Footer />
           </div>
           <Toaster />
+          <TwentyFirstToolbar 
+            enabled={process.env.NODE_ENV === 'development'} 
+            config={{
+              plugins: [ReactPlugin]
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

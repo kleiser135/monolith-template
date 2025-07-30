@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button/button";
 
-export default function DashboardPage() {
+export function DashboardPage() {
   // No client-side authentication check needed - middleware handles all security
   // If user reaches this page, they are already authenticated by server-side middleware
 
@@ -24,11 +24,17 @@ export default function DashboardPage() {
             Toast Demo
           </Button>
         </Link>
+        
+        <Button variant="destructive" className="w-full md:col-span-2">
+          Protected Action
+        </Button>
       </div>
       
-      <p className="mt-6 text-sm text-gray-600">
-        Explore different features and components available in the app.
-      </p>
+      <div className="mt-8 text-center">
+        <p className="text-sm text-muted-foreground">
+          This is a protected dashboard area. You can only see this because you are logged in.
+        </p>
+      </div>
     </main>
   );
-} 
+}

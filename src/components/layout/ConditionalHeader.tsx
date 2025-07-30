@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { HeaderUI } from "./HeaderUI";
+import { AppHeader, AuthHeader } from "./headers";
 
 interface ConditionalHeaderProps {
   isLoggedIn: boolean;
@@ -10,12 +10,15 @@ interface ConditionalHeaderProps {
 /**
  * ConditionalHeader determines which header to show based on the current route
  * Following modern web standards:
- * - Authentication pages: Minimal header (just logo)
+ * - Landing pages: No header (component has its own)
+ * - Authentication pages: Minimal header with logo
  * - Application pages: Full header with navigation
- * - Public pages: Marketing header with CTAs
  */
 export function ConditionalHeader({ isLoggedIn }: ConditionalHeaderProps) {
   const pathname = usePathname();
+  
+  // Routes that have their own custom headers
+  const customHeaderRoutes = ['/landing'];
   
   // Define routes that should use minimal auth header
   const authRoutes = [
@@ -26,15 +29,22 @@ export function ConditionalHeader({ isLoggedIn }: ConditionalHeaderProps) {
     '/email-verification'
   ];
   
+  // Check if current route has a custom header
+  const hasCustomHeader = customHeaderRoutes.some(route => pathname.startsWith(route));
+  
   // Check if current route is an auth route
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
   
-  if (isAuthRoute) {
-    // No header for authentication pages - modern, clean approach
-    // Users should focus entirely on the authentication task
+  if (hasCustomHeader) {
+    // Landing page and other custom header pages handle their own headers
     return null;
   }
   
-  // Use full header for all other pages
-  return <HeaderUI isLoggedIn={isLoggedIn} />;
+  if (isAuthRoute) {
+    // Minimal header for authentication pages
+    return <AuthHeader />;
+  }
+  
+  // Use full header for all other application pages
+  return <AppHeader isLoggedIn={isLoggedIn} />;
 }

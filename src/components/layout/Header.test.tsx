@@ -3,10 +3,10 @@ import { describe, it, expect, vi, Mock } from 'vitest';
 import { Header } from './Header';
 import { cookies } from 'next/headers';
 
-// Mock the HeaderUI component to simplify testing
-vi.mock('./HeaderUI', () => ({
-  HeaderUI: ({ isLoggedIn }: { isLoggedIn: boolean }) => (
-    <div data-testid="header-ui-mock" data-is-logged-in={isLoggedIn} />
+// Mock the AppHeader component to simplify testing
+vi.mock('./headers', () => ({
+  AppHeader: ({ isLoggedIn }: { isLoggedIn: boolean }) => (
+    <div data-testid="app-header-mock" data-is-logged-in={isLoggedIn} />
   ),
 }));
 
@@ -29,7 +29,7 @@ const createMockCookies = (token?: string) => {
 };
 
 describe('Header Component', () => {
-  it('renders HeaderUI with isLoggedIn=true when a token exists', async () => {
+  it('renders AppHeader with isLoggedIn=true when a token exists', async () => {
     // Arrange: Mock cookies to return a token
     mockCookies.mockResolvedValue(createMockCookies('fake-token'));
 
@@ -38,12 +38,12 @@ describe('Header Component', () => {
     render(element);
 
     // Assert
-    const headerUIMock = screen.getByTestId('header-ui-mock');
-    expect(headerUIMock).toBeInTheDocument();
-    expect(headerUIMock).toHaveAttribute('data-is-logged-in', 'true');
+    const appHeaderMock = screen.getByTestId('app-header-mock');
+    expect(appHeaderMock).toBeInTheDocument();
+    expect(appHeaderMock).toHaveAttribute('data-is-logged-in', 'true');
   });
 
-  it('renders HeaderUI with isLoggedIn=false when no token exists', async () => {
+  it('renders AppHeader with isLoggedIn=false when no token exists', async () => {
     // Arrange: Mock cookies to return an empty map
     mockCookies.mockResolvedValue(createMockCookies());
 
@@ -52,8 +52,8 @@ describe('Header Component', () => {
     render(element);
 
     // Assert
-    const headerUIMock = screen.getByTestId('header-ui-mock');
-    expect(headerUIMock).toBeInTheDocument();
-    expect(headerUIMock).toHaveAttribute('data-is-logged-in', 'false');
+    const appHeaderMock = screen.getByTestId('app-header-mock');
+    expect(appHeaderMock).toBeInTheDocument();
+    expect(appHeaderMock).toHaveAttribute('data-is-logged-in', 'false');
   });
 }); 
