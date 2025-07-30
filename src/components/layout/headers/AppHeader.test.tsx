@@ -2,21 +2,21 @@
 
 import { render, screen } from "@testing-library/react";
 import { vi } from "vitest";
-import { HeaderUI } from "./HeaderUI";
+import { AppHeader } from "./AppHeader";
 
 // Mock child components that have their own complex logic or dependencies
 vi.mock("@/components/theme-toggle", () => ({
   ThemeToggle: () => <div data-testid="theme-toggle-mock" />,
 }));
 
-vi.mock("@/components/features/auth/LogoutButton", () => ({
+vi.mock("@/components/features/auth/logout-button/LogoutButton", () => ({
   LogoutButton: () => <button>Logout</button>,
 }));
 
-describe("HeaderUI", () => {
+describe("AppHeader", () => {
   describe("when the user is logged in", () => {
     beforeEach(() => {
-      render(<HeaderUI isLoggedIn={true} />);
+      render(<AppHeader isLoggedIn={true} />);
     });
 
     it("should display links for authenticated users", () => {
@@ -37,7 +37,7 @@ describe("HeaderUI", () => {
 
   describe("when the user is logged out", () => {
     beforeEach(() => {
-      render(<HeaderUI isLoggedIn={false} />);
+      render(<AppHeader isLoggedIn={false} />);
     });
 
     it("should display links for public users", () => {
