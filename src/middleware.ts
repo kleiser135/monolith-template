@@ -21,8 +21,8 @@ const ROUTE_CONFIG = {
   // Routes that should redirect to dashboard if already authenticated
   AUTH_ONLY_ROUTES: ['/login', '/signup', '/forgot-password', '/reset-password'],
   
-  // Routes that don't require authentication checks
-  PUBLIC_ROUTES: ['/email-verification'],
+  // Routes that don't require authentication checks (including landing page)
+  PUBLIC_ROUTES: ['/email-verification', '/', '/landing'],
   
   // Default redirects
   AUTHENTICATED_REDIRECT: '/dashboard',
@@ -117,12 +117,13 @@ export function middleware(request: NextRequest) {
     }
   }
   
-  // Handle root path - redirect based on auth status
+  // Handle root path - show landing page for unauthenticated, dashboard for authenticated
   if (pathname === '/') {
     if (isAuthenticated) {
       return NextResponse.redirect(new URL(ROUTE_CONFIG.AUTHENTICATED_REDIRECT, request.url));
     } else {
-      return NextResponse.redirect(new URL(ROUTE_CONFIG.UNAUTHENTICATED_REDIRECT, request.url));
+      // Let unauthenticated users see the landing page
+      return NextResponse.next();
     }
   }
   

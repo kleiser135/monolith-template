@@ -77,21 +77,21 @@ export function LoginForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-foreground/80 mb-2 block">
+                <FormLabel className="text-sm font-medium text-slate-300 mb-2 block">
                   Email address
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
                       placeholder="Enter your email"
-                      className="h-14 text-base px-4 bg-background/50 border border-border/60 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all duration-200 placeholder:text-muted-foreground/60"
+                      className="h-12 text-base px-4 bg-slate-800/50 border border-slate-600 text-white rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-slate-800 transition-all duration-200 placeholder:text-slate-400"
                       {...field}
                       disabled={isPending}
                       autoComplete="email"
                     />
                   </div>
                 </FormControl>
-                <FormMessage className="text-xs mt-1" />
+                <FormMessage className="text-xs mt-1 text-red-400" />
               </FormItem>
             )}
           />
@@ -101,7 +101,7 @@ export function LoginForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-foreground/80 mb-2 block">
+                <FormLabel className="text-sm font-medium text-slate-300 mb-2 block">
                   Password
                 </FormLabel>
                 <FormControl>
@@ -109,14 +109,14 @@ export function LoginForm() {
                     <Input 
                       type="password" 
                       placeholder="Enter your password"
-                      className="h-14 text-base px-4 bg-background/50 border border-border/60 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all duration-200 placeholder:text-muted-foreground/60"
+                      className="h-12 text-base px-4 bg-slate-800/50 border border-slate-600 text-white rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-slate-800 transition-all duration-200 placeholder:text-slate-400"
                       {...field} 
                       disabled={isPending}
                       autoComplete="current-password"
                     />
                   </div>
                 </FormControl>
-                <FormMessage className="text-xs mt-1" />
+                <FormMessage className="text-xs mt-1 text-red-400" />
               </FormItem>
             )}
           />
@@ -124,12 +124,12 @@ export function LoginForm() {
         
         <Button 
           type="submit" 
-          className="w-full h-14 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 transition-all duration-200 active-press shadow-lg hover:shadow-xl" 
+          className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl" 
           disabled={isPending}
         >
           {isPending ? (
             <div className="flex items-center justify-center space-x-3">
-              <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               <span>Signing in...</span>
             </div>
           ) : (

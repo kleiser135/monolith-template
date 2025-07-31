@@ -1,12 +1,13 @@
 "use client"
 
 import { motion } from "framer-motion";
-import { Calendar, Users, MapPin, Clock, Star, ArrowRight, Menu, X, ChevronRight, Mail, Phone, Instagram, Twitter, Linkedin, Facebook, Dice6, GamepadIcon, Trophy, Zap } from "lucide-react";
+import { Calendar, Users, MapPin, Clock, Star, ArrowRight, Menu, X, ChevronRight, Mail, Phone, Instagram, Twitter, Linkedin, Facebook, GamepadIcon, Trophy, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LandingHeader } from "@/components/layout/headers";
+import Image from "next/image";
 
 function CardboardLanding() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,13 +58,13 @@ function CardboardLanding() {
             
             // Change header background based on scroll position
             if (y < featuresStart - 100) {
-                setHeaderBg('bg-transparent'); // Hero section
+                setHeaderBg('bg-transparent'); // Hero section - fully transparent to blend with background image
             } else if (y < eventsStart - 100) {
-                setHeaderBg('bg-transparent'); // Features section
+                setHeaderBg('bg-slate-900/80'); // Features section - subtle dark background for contrast
             } else if (y < contactStart - 100) {
-                setHeaderBg('bg-transparent'); // Events section
+                setHeaderBg('bg-slate-900/90'); // Events section - slightly more opaque
             } else {
-                setHeaderBg('bg-transparent'); // Contact section
+                setHeaderBg('bg-slate-800/95'); // Contact section - nearly opaque for readability
             }
         };
 
@@ -108,7 +109,7 @@ function CardboardLanding() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="flex min-h-screen flex-col">
             {/* Header */}
             <LandingHeader 
                 isMenuOpen={isMenuOpen}
@@ -128,8 +129,14 @@ function CardboardLanding() {
                     <div className="container flex h-16 items-center justify-between px-6">
                         <div className="flex items-center gap-3">
                             <div className="flex items-center space-x-3">
-                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-                                    <Dice6 className="h-5 w-5 text-white" />
+                                <div className="h-10 w-10 flex items-center justify-center">
+                                    <Image
+                                        src="/cardboard-wizard-logo.png"
+                                        alt="Cardboard Wizard"
+                                        width={40}
+                                        height={40}
+                                        className="object-contain"
+                                    />
                                 </div>
                                 <span className="font-bold text-xl text-white">CARDBOARD</span>
                             </div>
@@ -161,7 +168,7 @@ function CardboardLanding() {
                             <Button variant="outline" className="w-full rounded-xl border-slate-600 text-slate-300 hover:bg-slate-800">
                                 Log In
                             </Button>
-                            <Button className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-red-600">Start Organizing</Button>
+                            <Button variant="outline" className="w-full rounded-xl border-slate-600 text-slate-300 hover:bg-slate-800">Start Organizing</Button>
                         </motion.div>
                     </motion.nav>
                 </motion.div>
@@ -173,14 +180,20 @@ function CardboardLanding() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1 }}
-                    className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
+                    className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-slate-900 -mt-16 pt-16"
+                    style={{
+                        backgroundImage: "url('/hero-background.png')",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat"
+                    }}
                 >
                     {/* Animated Background Elements */}
                     <div className="absolute inset-0 overflow-hidden">
                         {isClient && floatingDots.map((dot, i) => (
                             <motion.div
                                 key={i}
-                                className="absolute w-2 h-2 bg-orange-500/30 rounded-full"
+                                className="absolute w-2 h-2 bg-orange-400/30 rounded-full"
                                 style={{
                                     left: `${dot.left}%`,
                                     top: `${dot.top}%`,
@@ -200,17 +213,6 @@ function CardboardLanding() {
 
                     <div className="relative z-10 container mx-auto px-6">
                         <div className="max-w-5xl mx-auto text-center">
-                            <motion.div
-                                initial={{ opacity: 0, y: 50 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 0.2 }}
-                                className="mb-6"
-                            >
-                                <div className="inline-flex items-center gap-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-full px-4 py-2 text-sm text-slate-300">
-                                    <GamepadIcon className="w-4 h-4 text-orange-500" />
-                                    Board Game Night Organizer
-                                </div>
-                            </motion.div>
 
                             <motion.h1
                                 initial={{ opacity: 0, y: 50 }}
@@ -220,59 +222,11 @@ function CardboardLanding() {
                             >
                                 Organize Epic
                                 <br />
-                                <span className="bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
+                                <span className="bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
                                     Game Nights
                                 </span>
                             </motion.h1>
 
-                            <motion.p
-                                initial={{ opacity: 0, y: 50 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 0.6 }}
-                                className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed"
-                            >
-                                Connect with fellow board game enthusiasts, discover amazing events, 
-                                and create unforgettable gaming experiences in your community.
-                            </motion.p>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 50 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 0.8 }}
-                                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-                            >
-                                <Button size="lg" className="rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 px-8 py-4 text-lg font-semibold group">
-                                    Start Planning Events
-                                    <motion.span
-                                        initial={{ x: 0 }}
-                                        whileHover={{ x: 3 }}
-                                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                                    >
-                                        <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                                    </motion.span>
-                                </Button>
-                                <Button variant="outline" size="lg" className="rounded-xl border-slate-600 text-slate-300 hover:bg-slate-800 px-8 py-4 text-lg">
-                                    Browse Events
-                                </Button>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 1.0 }}
-                                className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
-                            >
-                                {[
-                                    { number: "10K+", label: "Active Players" },
-                                    { number: "500+", label: "Events Monthly" },
-                                    { number: "50+", label: "Cities" },
-                                ].map((stat, index) => (
-                                    <div key={index} className="text-center">
-                                        <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.number}</div>
-                                        <div className="text-slate-400">{stat.label}</div>
-                                    </div>
-                                ))}
-                            </motion.div>
                         </div>
                     </div>
                 </motion.section>
@@ -291,7 +245,7 @@ function CardboardLanding() {
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.5 }}
-                                className="inline-block rounded-full bg-orange-500/20 px-4 py-2 text-orange-400 text-sm font-medium"
+                                className="inline-block rounded-full bg-purple-500/20 px-4 py-2 text-purple-400 text-sm font-medium"
                             >
                                 Features
                             </motion.div>
@@ -322,7 +276,7 @@ function CardboardLanding() {
                         >
                             {[
                                 {
-                                    icon: <Calendar className="h-8 w-8 text-orange-500" />,
+                                    icon: <Calendar className="h-8 w-8 text-purple-500" />,
                                     title: "Smart Scheduling",
                                     description: "Easily schedule game nights with calendar integration, automated reminders, and availability tracking for all participants.",
                                 },
@@ -332,7 +286,7 @@ function CardboardLanding() {
                                     description: "Manage RSVPs, track player preferences, skill levels, and ensure the perfect group size for every game type.",
                                 },
                                 {
-                                    icon: <Dice6 className="h-8 w-8 text-purple-500" />,
+                                    icon: <GamepadIcon className="h-8 w-8 text-purple-500" />,
                                     title: "Game Library",
                                     description: "Browse thousands of board games with detailed info, reviews, and get personalized recommendations for your group.",
                                 },
@@ -453,21 +407,21 @@ function CardboardLanding() {
                                                 <h3 className="text-xl font-bold text-white mb-1">{event.title}</h3>
                                                 <p className="text-sm text-slate-400">Hosted by {event.host}</p>
                                             </div>
-                                            <span className="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-full">
+                                            <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full">
                                                 {event.level}
                                             </span>
                                         </div>
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-2 text-sm text-slate-300">
-                                                <Clock className="h-4 w-4 text-orange-500" />
+                                                <Clock className="h-4 w-4 text-purple-500" />
                                                 {event.date}
                                             </div>
                                             <div className="flex items-center gap-2 text-sm text-slate-300">
-                                                <MapPin className="h-4 w-4 text-orange-500" />
+                                                <MapPin className="h-4 w-4 text-blue-500" />
                                                 {event.location}
                                             </div>
                                             <div className="flex items-center gap-2 text-sm text-slate-300">
-                                                <Users className="h-4 w-4 text-orange-500" />
+                                                <Users className="h-4 w-4 text-indigo-500" />
                                                 {event.players}
                                             </div>
                                         </div>
@@ -484,7 +438,7 @@ function CardboardLanding() {
                                                 ))}
                                             </div>
                                         </div>
-                                        <Button className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+                                        <Button className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800">
                                             Join Event
                                         </Button>
                                     </div>
@@ -493,7 +447,7 @@ function CardboardLanding() {
                         </motion.div>
                         <div className="flex justify-center mt-12">
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Button size="lg" className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-8 py-4 text-lg group">
+                                <Button size="lg" className="rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 px-8 py-4 text-lg group">
                                     View All Events
                                     <motion.span
                                         initial={{ x: 0 }}
@@ -531,7 +485,7 @@ function CardboardLanding() {
                             <div className="space-y-4">
                                 <motion.div whileHover={{ x: 5 }} className="flex items-start gap-4">
                                     <div className="rounded-xl bg-slate-900/50 p-3">
-                                        <Mail className="h-5 w-5 text-orange-500" />
+                                        <Mail className="h-5 w-5 text-purple-500" />
                                     </div>
                                     <div>
                                         <h3 className="font-medium text-white">Email Us</h3>
@@ -540,7 +494,7 @@ function CardboardLanding() {
                                 </motion.div>
                                 <motion.div whileHover={{ x: 5 }} className="flex items-start gap-4">
                                     <div className="rounded-xl bg-slate-900/50 p-3">
-                                        <Phone className="h-5 w-5 text-orange-500" />
+                                        <Phone className="h-5 w-5 text-blue-500" />
                                     </div>
                                     <div>
                                         <h3 className="font-medium text-white">Call Us</h3>
@@ -558,7 +512,7 @@ function CardboardLanding() {
                                     <motion.div key={index} whileHover={{ y: -3, scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                                         <a
                                             href="#"
-                                            className="rounded-xl bg-slate-900/50 p-3 text-slate-400 hover:text-orange-400 hover:bg-slate-800/50 transition-colors border border-slate-700/50 hover:border-slate-600/50"
+                                            className="rounded-xl bg-slate-900/50 p-3 text-slate-400 hover:text-purple-400 hover:bg-slate-800/50 transition-colors border border-slate-700/50 hover:border-slate-600/50"
                                         >
                                             {social.icon}
                                             <span className="sr-only">{social.label}</span>
@@ -605,7 +559,7 @@ function CardboardLanding() {
                                     <Textarea id="message" placeholder="What games do you love? How often do you play?" className="min-h-[120px] rounded-xl bg-slate-800 border-slate-600 text-white placeholder:text-slate-400" />
                                 </div>
                                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                    <Button type="submit" className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 py-3">
+                                    <Button type="submit" className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 py-3">
                                         Get Started with CARDBOARD
                                     </Button>
                                 </motion.div>
@@ -628,9 +582,15 @@ function CardboardLanding() {
                             <motion.div
                                 whileHover={{ rotate: 10, scale: 1.1 }}
                                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                                className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center"
+                                className="h-10 w-10 flex items-center justify-center shadow-lg"
                             >
-                                <Dice6 className="h-5 w-5 text-white" />
+                                <Image
+                                    src="/cardboard-wizard-logo.png"
+                                    alt="Cardboard Wizard"
+                                    width={40}
+                                    height={40}
+                                    className="object-contain"
+                                />
                             </motion.div>
                             <span className="font-bold text-xl text-white">CARDBOARD</span>
                         </div>
@@ -645,7 +605,7 @@ function CardboardLanding() {
                                 { icon: <Facebook className="h-5 w-5" />, label: "Facebook" },
                             ].map((social, index) => (
                                 <motion.div key={index} whileHover={{ y: -3, scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                    <a href="#" className="text-slate-400 hover:text-orange-400 transition-colors">
+                                    <a href="#" className="text-slate-400 hover:text-purple-400 transition-colors">
                                         {social.icon}
                                         <span className="sr-only">{social.label}</span>
                                     </a>
@@ -694,7 +654,7 @@ function CardboardLanding() {
                         </p>
                         <form className="flex space-x-2">
                             <Input type="email" placeholder="Enter your email" className="flex-1 rounded-xl bg-slate-800 border-slate-600 text-white placeholder:text-slate-400" />
-                            <Button type="submit" className="rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+                            <Button type="submit" className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800">
                                 Subscribe
                             </Button>
                         </form>
