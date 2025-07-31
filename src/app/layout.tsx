@@ -47,7 +47,9 @@ export default async function RootLayout({
         >
           <div className="relative flex min-h-screen flex-col">
             <ConditionalHeader isLoggedIn={isLoggedIn} />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1">
+              {children}
+            </main>
             <Footer />
           </div>
           <Toaster />

@@ -1,5 +1,5 @@
-import { HomePage } from "@/components/features/home/HomePage";
+import CardboardLandingPage from "@/components/features/landing/CardboardLanding";
 
 export default function Home() {
-  return <HomePage />;
+  return <CardboardLandingPage />;
 }

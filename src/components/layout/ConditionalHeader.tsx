@@ -17,32 +17,15 @@ interface ConditionalHeaderProps {
 export function ConditionalHeader({ isLoggedIn }: ConditionalHeaderProps) {
   const pathname = usePathname();
   
-  // Routes that have their own custom headers
-  const customHeaderRoutes = ['/landing'];
+  // Routes that have their own custom headers or no header at all
+  const noHeaderRoutes = ['/', '/landing', '/login', '/signup', '/forgot-password', '/reset-password', '/email-verification'];
   
-  // Define routes that should use minimal auth header
-  const authRoutes = [
-    '/login',
-    '/signup', 
-    '/forgot-password',
-    '/reset-password',
-    '/email-verification'
-  ];
+  // Check if current route should have no header
+  const hasNoHeader = noHeaderRoutes.some(route => pathname.startsWith(route));
   
-  // Check if current route has a custom header
-  const hasCustomHeader = customHeaderRoutes.some(route => pathname.startsWith(route));
-  
-  // Check if current route is an auth route
-  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
-  
-  if (hasCustomHeader) {
-    // Landing page and other custom header pages handle their own headers
+  if (hasNoHeader) {
+    // Landing page and auth pages handle their own headers or have none
     return null;
-  }
-  
-  if (isAuthRoute) {
-    // Minimal header for authentication pages
-    return <AuthHeader />;
   }
   
   // Use full header for all other application pages
