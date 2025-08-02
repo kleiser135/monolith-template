@@ -22,19 +22,56 @@ export function SharedBackground({ children, variant = 'landing' }: SharedBackgr
     { left: 45.8, top: 73.2, duration: 3.8, delay: 1.6 },
   ];
 
-  // Different background positioning for different page types
-  const backgroundPosition = variant === 'auth' ? 'center 90%' : 'center 90%';
+  // Different backgrounds for different variants
+  const getBackgroundStyles = () => {
+    if (variant === 'auth') {
+      return {
+        className: "min-h-screen bg-slate-900 relative overflow-hidden",
+        style: {}
+      };
+    }
+    
+    // Default landing variant
+    return {
+      className: "min-h-screen bg-slate-900 relative overflow-hidden",
+      style: {
+        backgroundImage: "url('/hero-background.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center 90%",
+        backgroundRepeat: "no-repeat"
+      }
+    };
+  };
+
+  const backgroundConfig = getBackgroundStyles();
 
   return (
     <div 
-      className="min-h-screen bg-slate-900 relative overflow-hidden"
-      style={{
-        backgroundImage: "url('/hero-background.png')",
-        backgroundSize: "cover",
-        backgroundPosition: backgroundPosition,
-        backgroundRepeat: "no-repeat"
-      }}
+      className={backgroundConfig.className}
+      style={variant === 'auth' ? { backgroundColor: '#0f172a' } : backgroundConfig.style}
     >
+      {/* Background image layer - only for auth variant with blur */}
+      {variant === 'auth' && (
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "url('/wizard-duel.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "60% 35%",
+            backgroundRepeat: "no-repeat",
+            filter: "blur(4px)"
+          }}
+        />
+      )}
+      
+      {/* Landing background - applied directly to container */}
+      {variant === 'landing' && (
+        <div 
+          className="absolute inset-0"
+          style={backgroundConfig.style}
+        />
+      )}
+
       {/* Floating dots animation */}
       <div className="absolute inset-0 overflow-hidden">
         {floatingDots.map((dot, i) => (

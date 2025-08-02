@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Authentication Flows', () => {
   it('should allow a user to sign up and be redirected to the login page', () => {
     // Start with a clean database and go directly to signup
@@ -39,7 +41,7 @@ describe('Authentication Flows', () => {
     cy.contains('Logout').click();
 
     // Verify redirection to the homepage and presence of login button
-    cy.url().should('eq', Cypress.config().baseUrl + '/');
+    cy.url().should('eq', 'http://localhost:3000/');
     cy.contains('Login').should('be.visible');
   });
 
@@ -59,7 +61,7 @@ describe('Authentication Flows', () => {
     cy.get('button[type="submit"]').click();
 
     // Wait for the API call and get the token from the response
-    cy.wait('@forgotPassword').its('response.body').then((body) => {
+    cy.wait('@forgotPassword').its('response.body').then((body: any) => {
       const { token } = body;
       cy.visit(`/reset-password?token=${token}`);
 
@@ -73,11 +75,16 @@ describe('Authentication Flows', () => {
       cy.url().should('include', '/login');
       cy.contains('Password reset successfully.').should('be.visible');
 
-      // Verify the new password works
-      cy.get('input[name="email"]').type('test@example.com');
-      cy.get('input[name="password"]').type(newPassword);
+      // Wait a moment for any animations to complete and form to be ready
+      cy.wait(1000);
+
+      // Verify the new password works by logging in
+      cy.get('input[name="email"]').should('be.visible').clear().type('test@example.com');
+      cy.get('input[name="password"]').should('be.visible').clear().type(newPassword);
       cy.get('button[type="submit"]').click();
-      cy.url().should('include', '/dashboard');
+      
+      // Wait for login to process and redirect
+      cy.url().should('include', '/dashboard', { timeout: 10000 });
       cy.contains('Logout').should('be.visible');
     });
   });

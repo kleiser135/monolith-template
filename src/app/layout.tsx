@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner/sonner";
 import { ConditionalHeader } from "@/components/layout/ConditionalHeader";
-import { Footer } from "@/components/layout/Footer";
 import { cookies } from "next/headers";
 import { TwentyFirstToolbar } from "@21st-extension/toolbar-next";
 import { ReactPlugin } from "@21st-extension/react";
@@ -50,7 +49,6 @@ export default async function RootLayout({
             <main className="flex-1">
               {children}
             </main>
-            <Footer />
           </div>
           <Toaster />
           <TwentyFirstToolbar 

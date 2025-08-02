@@ -51,7 +51,7 @@ describe("DeleteAccountDialog", () => {
     render(<DeleteAccountDialog />);
     fireEvent.click(screen.getByRole("button", { name: /delete account/i }));
     expect(
-      screen.getByRole("heading", { name: /are you absolutely sure/i })
+      screen.getByRole("heading", { name: /delete account permanently/i })
     ).toBeInTheDocument();
   });
 
@@ -63,7 +63,7 @@ describe("DeleteAccountDialog", () => {
 
     render(<DeleteAccountDialog />);
     fireEvent.click(screen.getByRole("button", { name: /delete account/i }));
-    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    fireEvent.click(screen.getByRole("button", { name: /delete forever/i }));
 
     await waitFor(() => {
       expect(mockDeleteAccount).toHaveBeenCalled();
@@ -85,7 +85,7 @@ describe("DeleteAccountDialog", () => {
 
     render(<DeleteAccountDialog />);
     fireEvent.click(screen.getByRole("button", { name: /delete account/i }));
-    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+    fireEvent.click(screen.getByRole("button", { name: /delete forever/i }));
 
     await waitFor(() => {
       expect(mockDeleteAccount).toHaveBeenCalled();
@@ -104,12 +104,12 @@ describe("DeleteAccountDialog", () => {
     render(<DeleteAccountDialog />);
     fireEvent.click(screen.getByRole("button", { name: /delete account/i }));
 
-    const continueButton = screen.getByRole("button", { name: /continue/i });
-    fireEvent.click(continueButton);
+    const deleteForeverButton = screen.getByRole("button", { name: /delete forever/i });
+    fireEvent.click(deleteForeverButton);
 
     await waitFor(() => {
-      expect(continueButton).toBeDisabled();
-      expect(continueButton).toHaveTextContent(/deleting.../i);
+      expect(deleteForeverButton).toBeDisabled();
+      expect(deleteForeverButton).toHaveTextContent(/deleting.../i);
     });
   });
 }); 

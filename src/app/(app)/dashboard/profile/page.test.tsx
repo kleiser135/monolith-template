@@ -98,12 +98,12 @@ describe('ProfilePage', () => {
 
     render(await ProfilePage());
 
-    expect(screen.getByRole('heading', { name: 'Profile' })).toBeInTheDocument();
-    expect(screen.getByText('Name')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Profile Settings' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Display Name' })).toBeInTheDocument();
     expect(screen.getByText('Test User')).toBeInTheDocument();
-    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Email Address' })).toBeInTheDocument();
     expect(screen.getByText('test@example.com')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Change Password' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Security Settings' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Danger Zone' })).toBeInTheDocument();
   });
 }); 

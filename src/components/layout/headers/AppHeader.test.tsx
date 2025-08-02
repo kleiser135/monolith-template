@@ -1,7 +1,7 @@
 /// <reference types="@testing-library/jest-dom" />
 
-import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { vi, describe, beforeEach, it, expect } from "vitest";
 import { AppHeader } from "./AppHeader";
 
 // Mock child components that have their own complex logic or dependencies
@@ -13,6 +13,17 @@ vi.mock("@/components/features/auth/logout-button/LogoutButton", () => ({
   LogoutButton: () => <button>Logout</button>,
 }));
 
+// Mock the dropdown menu to simulate it being open
+vi.mock("@/components/ui/dropdown-menu/dropdown-menu", () => ({
+  DropdownMenu: ({ children }: any) => <div>{children}</div>,
+  DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-content">{children}</div>,
+  DropdownMenuItem: ({ children, asChild, ...props }: any) => 
+    asChild ? children : <div data-testid="dropdown-item" {...props}>{children}</div>,
+  DropdownMenuSeparator: () => <div data-testid="dropdown-separator" />,
+  DropdownMenuTrigger: ({ children, asChild, ...props }: any) =>
+    asChild ? children : <div data-testid="dropdown-trigger" {...props}>{children}</div>,
+}));
+
 describe("AppHeader", () => {
   describe("when the user is logged in", () => {
     beforeEach(() => {
@@ -21,6 +32,8 @@ describe("AppHeader", () => {
 
     it("should display links for authenticated users", () => {
       expect(screen.getByRole("link", { name: /dashboard/i })).toBeInTheDocument();
+      
+      // Check for profile link in the dropdown (mocked as always visible)
       expect(screen.getByRole("link", { name: /profile/i })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /logout/i })).toBeInTheDocument();
     });
@@ -31,6 +44,7 @@ describe("AppHeader", () => {
     });
 
     it("should always display the theme toggle", () => {
+      // Check for theme toggle in dropdown (mocked as always visible)
       expect(screen.getByTestId("theme-toggle-mock")).toBeInTheDocument();
     });
   });

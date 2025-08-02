@@ -7,9 +7,9 @@ describe('DashboardPage', () => {
     render(<DashboardPage />);
 
     // Check for the main heading
-    expect(screen.getByRole('heading', { name: /Dashboard \(Protected\)/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Welcome to Your Dashboard/i })).toBeInTheDocument();
 
     // Check for the descriptive text
-    expect(screen.getByText(/This page should only be visible to logged-in users./i)).toBeInTheDocument();
+    expect(screen.getByText(/Manage your account, explore features, and access all the tools you need in one place./i)).toBeInTheDocument();
   });
 }); 

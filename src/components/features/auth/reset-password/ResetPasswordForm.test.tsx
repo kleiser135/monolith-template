@@ -34,37 +34,37 @@ describe('ResetPasswordForm', () => {
 
   it('renders the form correctly', () => {
     renderComponent('some-token');
-    expect(screen.getByLabelText(/^new password$/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/confirm new password/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter your new password')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Confirm your new password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /reset password/i })).toBeInTheDocument();
   });
 
   it('displays a validation error for mismatched passwords', async () => {
     renderComponent('some-token');
 
-    fireEvent.change(screen.getByLabelText(/^new password$/i), { target: { value: 'password123' } });
-    fireEvent.change(screen.getByLabelText(/confirm new password/i), { target: { value: 'password456' } });
+    fireEvent.change(screen.getByPlaceholderText('Enter your new password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('Confirm your new password'), { target: { value: 'password456' } });
     fireEvent.click(screen.getByRole('button', { name: /reset password/i }));
 
     await waitFor(() => {
-      const confirmPasswordInput = screen.getByLabelText(/confirm new password/i);
-      // The error message is linked to the input via aria-describedby
+      // The error message should be visible
       const error = screen.getByText('Passwords do not match');
-      expect(confirmPasswordInput).toHaveAttribute('aria-describedby', error.id);
+      expect(error).toBeInTheDocument();
+      
+      // The label should show error state
+      const confirmPasswordLabel = screen.getByText('Confirm New Password');
+      expect(confirmPasswordLabel).toHaveAttribute('data-error', 'true');
     });
   });
 
-  it('shows an error toast if token is missing on submit', async () => {
+  it('shows error message when token is missing', async () => {
     renderComponent(null); // No token
 
-    fireEvent.change(screen.getByLabelText(/^new password$/i), { target: { value: 'password123' } });
-    fireEvent.change(screen.getByLabelText(/confirm new password/i), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByRole('button', { name: /reset password/i }));
-
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Missing password reset token.');
-      expect(mockApiClientPost).not.toHaveBeenCalled();
-    });
+    // Should show the invalid reset link message instead of the form
+    expect(screen.getByText('Invalid Reset Link')).toBeInTheDocument();
+    expect(screen.getByText('This password reset link is invalid or has expired.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /request new reset link/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /back to login/i })).toBeInTheDocument();
   });
 
   it('calls API, shows success toast, and redirects on valid submission', async () => {
@@ -72,8 +72,8 @@ describe('ResetPasswordForm', () => {
     renderComponent('valid-token');
     mockApiClientPost.mockResolvedValue({ message: SUCCESS_MESSAGE });
 
-    fireEvent.change(screen.getByLabelText(/^new password$/i), { target: { value: 'newPassword123' } });
-    fireEvent.change(screen.getByLabelText(/confirm new password/i), { target: { value: 'newPassword123' } });
+    fireEvent.change(screen.getByPlaceholderText('Enter your new password'), { target: { value: 'newPassword123' } });
+    fireEvent.change(screen.getByPlaceholderText('Confirm your new password'), { target: { value: 'newPassword123' } });
     fireEvent.click(screen.getByRole('button', { name: /reset password/i }));
 
     await waitFor(() => {
@@ -82,8 +82,12 @@ describe('ResetPasswordForm', () => {
         password: 'newPassword123',
       });
       expect(toast.success).toHaveBeenCalledWith(SUCCESS_MESSAGE);
-      expect(mockPush).toHaveBeenCalledWith('/login');
     });
+
+    // Wait for the setTimeout to complete (2 seconds + buffer)
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/login');
+    }, { timeout: 3000 });
   });
 
   it('shows an error toast if the API call fails', async () => {
@@ -91,8 +95,8 @@ describe('ResetPasswordForm', () => {
     renderComponent('invalid-token');
     mockApiClientPost.mockRejectedValue(new Error(ERROR_MESSAGE));
 
-    fireEvent.change(screen.getByLabelText(/^new password$/i), { target: { value: 'newPassword123' } });
-    fireEvent.change(screen.getByLabelText(/confirm new password/i), { target: { value: 'newPassword123' } });
+    fireEvent.change(screen.getByPlaceholderText('Enter your new password'), { target: { value: 'newPassword123' } });
+    fireEvent.change(screen.getByPlaceholderText('Confirm your new password'), { target: { value: 'newPassword123' } });
     fireEvent.click(screen.getByRole('button', { name: /reset password/i }));
 
     await waitFor(() => {
@@ -106,8 +110,8 @@ describe('ResetPasswordForm', () => {
     // Make the API call hang
     mockApiClientPost.mockImplementation(() => new Promise(() => {}));
 
-    fireEvent.change(screen.getByLabelText(/^new password$/i), { target: { value: 'newPassword123' } });
-    fireEvent.change(screen.getByLabelText(/confirm new password/i), { target: { value: 'newPassword123' } });
+    fireEvent.change(screen.getByPlaceholderText('Enter your new password'), { target: { value: 'newPassword123' } });
+    fireEvent.change(screen.getByPlaceholderText('Confirm your new password'), { target: { value: 'newPassword123' } });
     fireEvent.click(screen.getByRole('button', { name: /reset password/i }));
 
     await waitFor(() => {

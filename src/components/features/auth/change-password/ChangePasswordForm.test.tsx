@@ -35,9 +35,9 @@ describe('ChangePasswordForm', () => {
     render(<ChangePasswordForm />);
 
     // Fill in the form
-    const currentPasswordInput = screen.getByLabelText(/current password/i);
-    const newPasswordInput = screen.getByLabelText(/^new password$/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm new password/i);
+    const currentPasswordInput = screen.getByPlaceholderText(/enter your current password/i);
+    const newPasswordInput = screen.getByPlaceholderText(/enter your new password/i);
+    const confirmPasswordInput = screen.getByPlaceholderText(/confirm your new password/i);
     const submitButton = screen.getByRole('button', { name: /change password/i });
 
     fireEvent.change(currentPasswordInput, { target: { value: 'currentpass123' } });
@@ -63,9 +63,9 @@ describe('ChangePasswordForm', () => {
     render(<ChangePasswordForm />);
 
     // Fill in the form
-    const currentPasswordInput = screen.getByLabelText(/current password/i);
-    const newPasswordInput = screen.getByLabelText(/^new password$/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm new password/i);
+    const currentPasswordInput = screen.getByPlaceholderText(/enter your current password/i);
+    const newPasswordInput = screen.getByPlaceholderText(/enter your new password/i);
+    const confirmPasswordInput = screen.getByPlaceholderText(/confirm your new password/i);
     const submitButton = screen.getByRole('button', { name: /change password/i });
 
     fireEvent.change(currentPasswordInput, { target: { value: 'wrongpass123' } });
@@ -92,9 +92,9 @@ describe('ChangePasswordForm', () => {
     render(<ChangePasswordForm />);
 
     // Fill in the form
-    const currentPasswordInput = screen.getByLabelText(/current password/i);
-    const newPasswordInput = screen.getByLabelText(/^new password$/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm new password/i);
+    const currentPasswordInput = screen.getByPlaceholderText(/enter your current password/i);
+    const newPasswordInput = screen.getByPlaceholderText(/enter your new password/i);
+    const confirmPasswordInput = screen.getByPlaceholderText(/confirm your new password/i);
 
     fireEvent.change(currentPasswordInput, { target: { value: 'currentpass123' } });
     fireEvent.change(newPasswordInput, { target: { value: 'newpass123' } });

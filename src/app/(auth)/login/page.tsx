@@ -1,42 +1,48 @@
+"use client";
+
 import { LoginForm } from "@/components/features/auth/login/LoginForm";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function LoginPage() {
   return (
     <>
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-          Welcome back
-        </h1>
-        <p className="text-slate-400 text-sm">
-          Sign in to continue organizing epic game nights
-        </p>
-      </div>
-
-      {/* Form */}
-      <LoginForm />
+      {/* Form - title is now handled by AnimatedAuthContainer */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <LoginForm />
+      </motion.div>
 
       {/* Footer Links */}
-      <div className="text-center mt-6 space-y-3">
-        <p className="text-sm text-slate-400">
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="text-center mt-6 space-y-3"
+      >
+        <p className="text-sm text-slate-300">
           Don't have an account?{" "}
           <Link 
             href="/signup" 
-            className="font-medium text-blue-400 hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
+            className="font-medium text-blue-400 hover:text-blue-300 transition-colors underline-offset-4 hover:underline relative group"
           >
             Sign up
+            <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-200 group-hover:w-full"></span>
           </Link>
         </p>
-        <p className="text-xs text-slate-500">
+        <div className="pt-1 border-t border-slate-700/30">
           <Link 
             href="/forgot-password" 
-            className="hover:text-slate-400 transition-colors underline-offset-4 hover:underline"
+            className="text-xs text-slate-300 hover:text-slate-200 transition-colors underline-offset-4 hover:underline relative group"
           >
             Forgot your password?
+            <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-slate-300 transition-all duration-200 group-hover:w-full"></span>
           </Link>
-        </p>
-      </div>
+        </div>
+      </motion.div>
     </>
   );
 }

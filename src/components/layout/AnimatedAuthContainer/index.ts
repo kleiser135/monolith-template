@@ -1,0 +1,1 @@
+export { AnimatedAuthContainer } from './AnimatedAuthContainer';

@@ -43,9 +43,9 @@ describe('SignupForm', () => {
     render(<SignupForm />);
 
     // Fill in the form
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
+    const emailInput = screen.getByPlaceholderText(/enter your email/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
+    const confirmPasswordInput = screen.getByPlaceholderText(/confirm your password/i);
     const submitButton = screen.getByRole('button', { name: /create account/i });
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
@@ -72,9 +72,9 @@ describe('SignupForm', () => {
     render(<SignupForm />);
 
     // Fill in the form
-    const emailInput = screen.getByLabelText(/email/i);
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
+    const emailInput = screen.getByPlaceholderText(/enter your email/i);
+    const passwordInput = screen.getByPlaceholderText(/enter your password/i);
+    const confirmPasswordInput = screen.getByPlaceholderText(/confirm your password/i);
     const submitButton = screen.getByRole('button', { name: /create account/i });
 
     fireEvent.change(emailInput, { target: { value: 'existing@example.com' } });
@@ -93,9 +93,9 @@ describe('SignupForm', () => {
 
   it('should render the form with all fields', () => {
     render(<SignupForm />);
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Confirm Password')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter your email')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter your password')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Confirm your password')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Create Account' })
     ).toBeInTheDocument();
