@@ -90,7 +90,7 @@ export function LandingHeader({ isMenuOpen, toggleMenu, headerBg, scrollY }: Lan
                 className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800"
                 asChild
               >
-                <Link href="/signup">Start Organizing</Link>
+                <Link href="/signup">Sign Up</Link>
               </Button>
             </motion.div>
           </div>
