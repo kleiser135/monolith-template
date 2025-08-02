@@ -5,18 +5,16 @@ describe('Navigation and Landing Page', () => {
     cy.visit('/');
     
     // Check main elements are visible
-    cy.contains('CARDBOARD').should('be.visible');
-    cy.contains('Features').should('be.visible');
-    cy.contains('Events').should('be.visible');
-    cy.contains('Community').should('be.visible');
-    cy.contains('Contact').should('be.visible');
+    cy.contains('Welcome to the Monolith Template').should('be.visible');
+    cy.contains('Login').should('be.visible');
+    cy.contains('Sign Up').should('be.visible');
   });
 
   it('should navigate from landing page to auth pages', () => {
     cy.visit('/');
     
     // Navigate to login
-    cy.contains('Log In').click();
+    cy.contains('Login').click();
     cy.url().should('include', '/login');
     cy.contains('Sign in').should('be.visible');
     
