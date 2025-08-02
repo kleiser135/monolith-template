@@ -52,8 +52,8 @@ export function AnimatedAuthContainer({
                 className="relative mb-4"
               >
                 <Image
-                  src="/CardBoard_Wizard_NoText.png"
-                  alt="CardBoard Wizard"
+                  src="/wizard-logo.png"
+                  alt="App Logo"
                   width={64}
                   height={64}
                   className="mx-auto object-contain w-16 h-16"

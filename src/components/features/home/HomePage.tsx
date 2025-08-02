@@ -5,7 +5,7 @@ export function HomePage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
       <h1 className="text-4xl font-bold tracking-tight lg:text-5xl">
-        Welcome to CARDBOARD
+        Welcome to Your App
       </h1>
       <p className="mt-4 max-w-xl text-lg text-muted-foreground">
         Organize epic game nights with the ultimate board game event platform.
