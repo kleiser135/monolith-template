@@ -11,7 +11,7 @@ export function AuthHeader() {
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
             <Dice6 className="h-4 w-4 text-white" />
           </div>
-          <span className="font-bold text-lg">CARDBOARD</span>
+          <span className="font-bold text-lg">APP TEMPLATE</span>
         </Link>
       </div>
     </header>

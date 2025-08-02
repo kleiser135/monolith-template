@@ -62,14 +62,14 @@ export function LandingHeader({ isMenuOpen, toggleMenu, headerBg, scrollY }: Lan
             className="h-10 w-10 flex items-center justify-center shadow-lg"
           >
             <Image
-              src="/cardboard-wizard-logo.png"
-              alt="Cardboard Wizard"
+              src="/wizard-logo.png"
+              alt="App Logo"
               width={40}
               height={40}
               className="object-contain"
             />
           </motion.div>
-          <span className="font-bold text-xl text-white whitespace-nowrap">CARDBOARD</span>
+          <span className="font-bold text-xl text-white whitespace-nowrap">APP TEMPLATE</span>
         </div>
 
         <div className="flex items-center gap-3 flex-1 justify-end">

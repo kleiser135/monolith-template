@@ -35,7 +35,7 @@ describe("AnimatedAuthContainer", () => {
       </AnimatedAuthContainer>
     );
 
-    expect(screen.getByAltText("CardBoard Wizard")).toBeInTheDocument();
+    expect(screen.getByAltText("App Logo")).toBeInTheDocument();
     expect(screen.getByText("Welcome")).toBeInTheDocument();
   });
 
@@ -46,7 +46,7 @@ describe("AnimatedAuthContainer", () => {
       </AnimatedAuthContainer>
     );
 
-    expect(screen.queryByAltText("CardBoard Wizard")).not.toBeInTheDocument();
+    expect(screen.queryByAltText("App Logo")).not.toBeInTheDocument();
     expect(screen.queryByText("Welcome")).not.toBeInTheDocument();
     expect(screen.getByText("Test Content")).toBeInTheDocument();
   });
