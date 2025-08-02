@@ -126,12 +126,12 @@ function CardboardLanding() {
                     exit={{ opacity: 0, y: -20 }}
                     className="fixed inset-0 z-50 bg-slate-900 md:hidden"
                 >
-                    <div className="container flex h-16 items-center justify-between px-6">
+                    <div className="container mx-auto flex h-16 items-center justify-between px-6">
                         <div className="flex items-center gap-3">
                             <div className="flex items-center space-x-3">
                                 <div className="h-10 w-10 flex items-center justify-center">
                                     <Image
-                                        src="/cardboard-wizard-logo.png"
+                                        src="/wizard-logo.png"
                                         alt="Cardboard Wizard"
                                         width={40}
                                         height={40}
@@ -150,7 +150,7 @@ function CardboardLanding() {
                         variants={staggerContainer}
                         initial="hidden"
                         animate="visible"
-                        className="container grid gap-3 pb-8 pt-6 px-6"
+                        className="container mx-auto grid gap-3 pb-8 pt-6 px-6"
                     >
                         {["Features", "Events", "Community", "Contact"].map((item, index) => (
                             <motion.div key={index} variants={itemFadeIn}>
@@ -238,7 +238,7 @@ function CardboardLanding() {
                         whileInView="visible"
                         viewport={{ once: true }}
                         variants={staggerContainer}
-                        className="container px-6"
+                        className="container mx-auto px-6"
                     >
                         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-16">
                             <motion.div
@@ -329,7 +329,7 @@ function CardboardLanding() {
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true }}
-                        className="container px-6"
+                        className="container mx-auto px-6"
                     >
                         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-16">
                             <motion.div
@@ -468,7 +468,7 @@ function CardboardLanding() {
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true }}
-                        className="container grid items-center gap-12 px-6 lg:grid-cols-2"
+                        className="container mx-auto grid items-center gap-12 px-6 lg:grid-cols-2"
                     >
                         <motion.div
                             initial={{ opacity: 0, x: -50 }}
@@ -575,7 +575,7 @@ function CardboardLanding() {
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true }}
-                    className="container grid gap-8 px-6 py-12 lg:grid-cols-4"
+                    className="container mx-auto grid gap-8 px-6 py-12 lg:grid-cols-4"
                 >
                     <div className="space-y-4">
                         <div className="flex items-center space-x-3">
@@ -661,7 +661,7 @@ function CardboardLanding() {
                     </div>
                 </motion.div>
                 <div className="border-t border-slate-700/50">
-                    <div className="container flex flex-col items-center justify-between gap-4 py-6 md:h-16 md:flex-row md:py-0 px-6">
+                    <div className="container mx-auto flex flex-col items-center justify-between gap-4 py-6 md:h-16 md:flex-row md:py-0 px-6">
                         <p className="text-xs text-slate-500">
                             &copy; {new Date().getFullYear()} CARDBOARD. All rights reserved.
                         </p>

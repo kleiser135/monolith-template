@@ -6,18 +6,17 @@ describe('Login Page', () => {
   it('renders the login form with all fields', () => {
     render(<LoginPage />)
 
-    // Check for the main heading
-    expect(
-      screen.getByRole('heading', { name: /welcome back/i })
-    ).toBeInTheDocument()
+    // Check for the email input using placeholder
+    expect(screen.getByPlaceholderText(/enter your email/i)).toBeInTheDocument()
 
-    // Check for the email input
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
+    // Check for the password input using placeholder
+    expect(screen.getByPlaceholderText(/enter your password/i)).toBeInTheDocument()
 
-    // Check for the password input
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
-
-    // Check for the login button
-    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument()
+    // Check for the sign in button
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
+    
+    // Check for navigation links
+    expect(screen.getByRole('link', { name: /sign up/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /forgot your password/i })).toBeInTheDocument()
   })
 }) 
