@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import { ChangePasswordForm } from "@/components/features/auth/change-password/ChangePasswordForm";
 import { DeleteAccountDialog } from "@/components/features/auth/delete-account/DeleteAccountDialog";
+import { AvatarUpload } from "@/components/features/profile/avatar-upload/AvatarUpload";
 import { User, Mail, Shield, AlertTriangle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button/button";
@@ -24,7 +25,7 @@ async function getUser() {
     const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as JwtPayload;
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { email: true, name: true },
+      select: { email: true, name: true, avatar: true },
     });
     return user;
   } catch (_error) {
@@ -75,6 +76,7 @@ export default async function ProfilePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left Column - Profile Information */}
             <div className="space-y-6">
               <div>
                 <div className="flex items-center space-x-3 mb-2">
@@ -107,23 +109,38 @@ export default async function ProfilePage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-xl p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <Shield className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Account Status</h3>
+            {/* Right Column - Avatar and Account Status */}
+            <div className="space-y-6">
+              {/* Avatar Upload Section */}
+              <div>
+                <div className="flex items-center space-x-3 mb-4">
+                  <User className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Profile Avatar</h3>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-6">
+                  <AvatarUpload currentAvatar={user.avatar} />
+                </div>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Account Type</span>
-                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Standard</span>
+
+              {/* Account Status Section */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-xl p-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <Shield className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Account Status</h3>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Security Level</span>
-                  <span className="text-sm font-medium text-green-600 dark:text-green-400">Secure</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Two-Factor Auth</span>
-                  <span className="text-sm font-medium text-orange-600 dark:text-orange-400">Not Enabled</span>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Account Type</span>
+                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Standard</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Security Level</span>
+                    <span className="text-sm font-medium text-green-600 dark:text-green-400">Secure</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Two-Factor Auth</span>
+                    <span className="text-sm font-medium text-orange-600 dark:text-orange-400">Not Enabled</span>
+                  </div>
                 </div>
               </div>
             </div>
