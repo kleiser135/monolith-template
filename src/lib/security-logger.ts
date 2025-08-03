@@ -1,3 +1,5 @@
+import { prisma } from './prisma';
+
 export enum SecurityEventType {
   AVATAR_UPLOAD_SUCCESS = 'avatar_upload_success',
   AVATAR_UPLOAD_FAILED = 'avatar_upload_failed',
@@ -7,7 +9,10 @@ export enum SecurityEventType {
   INVALID_FILE_TYPE = 'invalid_file_type',
   FILE_SIZE_EXCEEDED = 'file_size_exceeded',
   PATH_TRAVERSAL_ATTEMPT = 'path_traversal_attempt',
-  SUSPICIOUS_COMPRESSION = 'suspicious_compression'
+  SUSPICIOUS_COMPRESSION = 'suspicious_compression',
+  MALICIOUS_METADATA = 'malicious_metadata',
+  DECOMPRESSION_BOMB = 'decompression_bomb',
+  MIME_MISMATCH = 'mime_mismatch'
 }
 
 export interface SecurityEvent {
@@ -23,7 +28,7 @@ export interface SecurityEvent {
 class SecurityLogger {
   private events: SecurityEvent[] = [];
   
-  log(event: Omit<SecurityEvent, 'timestamp'>): void {
+  async log(event: Omit<SecurityEvent, 'timestamp'>): Promise<void> {
     const securityEvent: SecurityEvent = {
       ...event,
       timestamp: new Date().toISOString()
@@ -34,8 +39,7 @@ class SecurityLogger {
       console.log('🔒 Security Event:', securityEvent);
     }
     
-    // In production, you would send this to your SIEM/logging service
-    // Examples: DataDog, Splunk, ELK Stack, etc.
+    // Store in memory for immediate access
     this.events.push(securityEvent);
     
     // Keep only last 1000 events in memory
@@ -43,9 +47,33 @@ class SecurityLogger {
       this.events = this.events.slice(-1000);
     }
     
+    // Store in database asynchronously (don't wait for it)
+    this.saveToDatabase(securityEvent).catch(error => {
+      console.error('Failed to save security event to database:', error);
+    });
+    
     // For critical events, consider immediate alerting
     if (securityEvent.severity === 'critical') {
       this.handleCriticalEvent(securityEvent);
+    }
+  }
+  
+  private async saveToDatabase(event: SecurityEvent): Promise<void> {
+    try {
+      await prisma.securityLog.create({
+        data: {
+          userId: event.userId,
+          eventType: event.type,
+          details: JSON.stringify(event.details || {}),
+          ipAddress: event.ip || null,
+          userAgent: event.userAgent || null,
+          severity: event.severity,
+          timestamp: new Date(event.timestamp),
+        },
+      });
+    } catch (error) {
+      // Silently fail for database issues - security logging shouldn't break the app
+      console.error('Database error in security logger:', error);
     }
   }
   
@@ -57,6 +85,7 @@ class SecurityLogger {
     // - Send to alerting system (PagerDuty, etc.)
     // - Temporarily block user if needed
     // - Notify security team
+    // - Consider automatic account suspension for severe attacks
   }
   
   getRecentEvents(limit: number = 100): SecurityEvent[] {
@@ -67,6 +96,47 @@ class SecurityLogger {
     return this.events
       .filter(event => event.userId === userId)
       .slice(-limit);
+  }
+  
+  async getRecentEventsFromDatabase(limit: number = 100): Promise<any[]> {
+    try {
+      return await prisma.securityLog.findMany({
+        take: limit,
+        orderBy: { timestamp: 'desc' },
+        include: {
+          user: {
+            select: {
+              email: true,
+              name: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Failed to fetch security events from database:', error);
+      return [];
+    }
+  }
+  
+  async getEventsByUserFromDatabase(userId: string, limit: number = 50): Promise<any[]> {
+    try {
+      return await prisma.securityLog.findMany({
+        where: { userId },
+        take: limit,
+        orderBy: { timestamp: 'desc' },
+        include: {
+          user: {
+            select: {
+              email: true,
+              name: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Failed to fetch user security events from database:', error);
+      return [];
+    }
   }
 }
 

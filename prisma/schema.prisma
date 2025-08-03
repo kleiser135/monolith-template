@@ -24,6 +24,7 @@ model User {
   updatedAt           DateTime  @updatedAt
   passwordResetTokens PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
+  securityLogs        SecurityLog[]
 }
 
 model PasswordResetToken {
@@ -42,4 +43,22 @@ model EmailVerificationToken {
   expiresAt DateTime
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+}
+
+model SecurityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  eventType String
+  details   String   @db.Text
+  ipAddress String?
+  userAgent String?
+  timestamp DateTime @default(now())
+  severity  String   @default("low")
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([eventType])
+  @@index([timestamp])
+  @@index([severity])
 }

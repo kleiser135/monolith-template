@@ -103,6 +103,43 @@ export function middleware(request: NextRequest) {
   if (isDev) {
     console.log(`[Middleware] ${pathname}`);
   }
+
+  // Handle security headers for uploaded files
+  if (pathname.startsWith('/uploads/')) {
+    const response = NextResponse.next();
+    
+    // Apply strict security headers for uploaded files
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    // Strict Content Security Policy for uploaded files
+    response.headers.set(
+      'Content-Security-Policy',
+      "default-src 'none'; img-src 'self'; style-src 'none'; script-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; font-src 'none'; connect-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none';"
+    );
+    
+    // Cache control for performance
+    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    
+    // Force proper content type handling
+    if (pathname.endsWith('.jpg') || pathname.endsWith('.jpeg')) {
+      response.headers.set('Content-Type', 'image/jpeg');
+    } else if (pathname.endsWith('.png')) {
+      response.headers.set('Content-Type', 'image/png');
+    } else if (pathname.endsWith('.webp')) {
+      response.headers.set('Content-Type', 'image/webp');
+    } else if (pathname.endsWith('.gif')) {
+      response.headers.set('Content-Type', 'image/gif');
+    }
+    
+    if (isDev) {
+      console.log(`[Middleware] Applied security headers for uploaded file: ${pathname}`);
+    }
+    
+    return response;
+  }
   
   // Validate authentication status
   let isAuthenticated = false;
