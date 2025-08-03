@@ -35,7 +35,7 @@ export function TemplateLanding() {
           <Badge variant="secondary" className="mb-6">
             Production Ready
           </Badge>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-primary">
             Build Your Next App
           </h1>
           <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
