@@ -52,7 +52,7 @@ describe("TemplateLanding", () => {
 
   it("displays testing feature details", () => {
     expect(screen.getByText(/Comprehensive testing setup/i)).toBeInTheDocument();
-    expect(screen.getByText("151+ unit tests")).toBeInTheDocument();
+    expect(screen.getByText("Comprehensive unit tests")).toBeInTheDocument();
     expect(screen.getByText("E2E test coverage")).toBeInTheDocument();
     expect(screen.getByText("TDD workflow")).toBeInTheDocument();
   });
