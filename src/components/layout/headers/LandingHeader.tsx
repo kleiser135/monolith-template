@@ -62,7 +62,7 @@ export function LandingHeader({ isMenuOpen, toggleMenu, headerBg, scrollY }: Lan
             className="h-10 w-10 flex items-center justify-center shadow-lg"
           >
             <Image
-              src="/wizard-logo.png"
+              src="/template-logo.svg"
               alt="App Logo"
               width={40}
               height={40}

@@ -52,7 +52,7 @@ export function AnimatedAuthContainer({
                 className="relative mb-4"
               >
                 <Image
-                  src="/wizard-logo.png"
+                  src="/template-logo.svg"
                   alt="App Logo"
                   width={64}
                   height={64}
