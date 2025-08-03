@@ -45,7 +45,7 @@ export function TemplateLanding() {
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Button asChild size="lg">
               <Link href="/signup">
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                Get Started <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
