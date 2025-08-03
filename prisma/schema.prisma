@@ -19,6 +19,7 @@ model User {
   email               String    @unique
   emailVerified       DateTime?
   password            String
+  avatar              String?   // URL to avatar image
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   passwordResetTokens PasswordResetToken[]
