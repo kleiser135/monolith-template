@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
           await unlink(oldFilePath);
         }
       } catch (error) {
-        console.warn('Failed to delete old avatar:', error);
+        console.warn(`Failed to delete old avatar file at ${oldFilePath}:`, error);
       }
     }
 
