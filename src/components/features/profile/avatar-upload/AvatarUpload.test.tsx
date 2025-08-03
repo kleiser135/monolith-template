@@ -14,7 +14,7 @@ vi.mock('sonner', () => ({
 // Mock Next.js Image component
 vi.mock('next/image', () => ({
   default: ({ src, alt, ...props }: any) => (
-    <img src={src} alt={alt} {...props} />
+    <div data-testid="next-image" data-src={src} data-alt={alt} {...props} />
   ),
 }));
 
@@ -42,8 +42,9 @@ describe('AvatarUpload', () => {
     const avatarUrl = '/uploads/avatars/test-avatar.jpg';
     render(<AvatarUpload currentAvatar={avatarUrl} />);
     
-    const avatarImage = screen.getByRole('img', { name: /profile avatar/i });
-    expect(avatarImage).toHaveAttribute('src', avatarUrl);
+    const avatarImage = screen.getByTestId('next-image');
+    expect(avatarImage).toHaveAttribute('data-src', avatarUrl);
+    expect(avatarImage).toHaveAttribute('data-alt', 'Profile avatar');
     
     const changeButton = screen.getByRole('button', { name: /change avatar/i });
     expect(changeButton).toBeInTheDocument();

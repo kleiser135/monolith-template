@@ -57,8 +57,19 @@ export function AvatarUpload({ currentAvatar, onAvatarUpdate }: AvatarUploadProp
 
       const result = await response.json();
       
-      // Handle new API response format
-      const newAvatarUrl = result.user?.avatar ? `/${result.user.avatar}` : result.avatarUrl;
+      // The API may return the avatar URL in two formats for backward compatibility:
+      // 1. New format: result.user.avatar (string, relative path)
+      // 2. Old format: result.avatarUrl (string, absolute or relative path)
+      // This logic supports both formats until the API is standardized.
+      let newAvatarUrl: string | null = null;
+      
+      if (result.user && typeof result.user.avatar === 'string' && result.user.avatar.length > 0) {
+        newAvatarUrl = `/${result.user.avatar}`;
+      } else if (typeof result.avatarUrl === 'string' && result.avatarUrl.length > 0) {
+        newAvatarUrl = result.avatarUrl;
+      } else {
+        newAvatarUrl = null;
+      }
       
       setPreviewUrl(newAvatarUrl);
       onAvatarUpdate?.(newAvatarUrl);
