@@ -121,7 +121,7 @@ describe('AvatarUpload', () => {
     
     // Wait for error handling
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Failed to update avatar');
+      expect(toast.error).toHaveBeenCalledWith('Upload failed');
     });
   });
 

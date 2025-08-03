@@ -45,17 +45,27 @@ export function AvatarUpload({ currentAvatar, onAvatarUpdate }: AvatarUploadProp
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        let errorMessage = 'Upload failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData?.error || errorData?.message || errorMessage;
+        } catch (e) {
+          // Ignore JSON parse errors, use default message
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
       
-      setPreviewUrl(result.avatarUrl);
-      onAvatarUpdate?.(result.avatarUrl);
-      toast.success('Avatar updated successfully');
-    } catch (error) {
+      // Handle new API response format
+      const newAvatarUrl = result.user?.avatar ? `/${result.user.avatar}` : result.avatarUrl;
+      
+      setPreviewUrl(newAvatarUrl);
+      onAvatarUpdate?.(newAvatarUrl);
+      toast.success(result.message || 'Avatar updated successfully');
+    } catch (error: any) {
       console.error('Avatar upload error:', error);
-      toast.error('Failed to update avatar');
+      toast.error(error?.message || 'Failed to update avatar');
     } finally {
       setIsUploading(false);
     }
@@ -70,15 +80,24 @@ export function AvatarUpload({ currentAvatar, onAvatarUpdate }: AvatarUploadProp
       });
 
       if (!response.ok) {
-        throw new Error('Remove failed');
+        let errorMessage = 'Failed to remove avatar';
+        try {
+          const errorData = await response.json();
+          if (errorData?.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (jsonError) {
+          // Ignore JSON parse errors, use default message
+        }
+        throw new Error(errorMessage);
       }
 
       setPreviewUrl(null);
       onAvatarUpdate?.(null);
       toast.success('Avatar removed successfully');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Avatar remove error:', error);
-      toast.error('Failed to remove avatar');
+      toast.error(error?.message || 'Failed to remove avatar');
     } finally {
       setIsUploading(false);
     }
