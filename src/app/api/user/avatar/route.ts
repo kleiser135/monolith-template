@@ -82,7 +82,123 @@ function isValidAvatarPath(userPath: string, userId?: string): boolean {
   return normalizedPath.startsWith('uploads/avatars/');
 }
 
-// Secure file validation with magic numbers
+// Advanced polyglot file detection
+function detectPolyglotFile(buffer: Buffer): { isPolyglot: boolean; evidence: string[] } {
+  const evidence: string[] = [];
+  
+  // Check for common polyglot signatures
+  const fileStart = buffer.subarray(0, 1024).toString('hex');
+  const fileContent = buffer.toString('binary', 0, Math.min(buffer.length, 8192));
+  
+  // HTML/JS injection in images
+  if (fileContent.includes('<script') || fileContent.includes('javascript:') || 
+      fileContent.includes('<iframe') || fileContent.includes('onerror=')) {
+    evidence.push('HTML/JavaScript content detected');
+  }
+  
+  // PHP injection
+  if (fileContent.includes('<?php') || fileContent.includes('<?=')) {
+    evidence.push('PHP code detected');
+  }
+  
+  // Multiple file format headers (polyglot)
+  const hasJPEG = fileStart.startsWith('ffd8ff');
+  const hasPNG = fileStart.startsWith('89504e47');
+  const hasGIF = fileStart.startsWith('474946');
+  const hasWebP = fileStart.includes('57454250');
+  
+  const formatCount = [hasJPEG, hasPNG, hasGIF, hasWebP].filter(Boolean).length;
+  if (formatCount > 1) {
+    evidence.push('Multiple image format signatures detected');
+  }
+  
+  // SVG with embedded content (even though we don't allow SVG)
+  if (fileContent.includes('<svg') && (fileContent.includes('<script') || fileContent.includes('onload='))) {
+    evidence.push('SVG with embedded scripts detected');
+  }
+  
+  // Suspicious URLs or protocols
+  if (fileContent.match(/https?:\/\//) || fileContent.includes('ftp://') || 
+      fileContent.includes('file://') || fileContent.includes('data:')) {
+    evidence.push('Suspicious URLs or protocols detected');
+  }
+  
+  return {
+    isPolyglot: evidence.length > 0,
+    evidence
+  };
+}
+
+// SSRF prevention - check for embedded URLs
+function checkForSSRFVectors(buffer: Buffer): { hasSSRF: boolean; urls: string[] } {
+  const content = buffer.toString('binary', 0, Math.min(buffer.length, 16384));
+  const urls: string[] = [];
+  
+  // Look for various URL patterns
+  const urlPatterns = [
+    /https?:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+    /ftp:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+    /file:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+    /gopher:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+    /ldap:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+  ];
+  
+  for (const pattern of urlPatterns) {
+    const matches = content.match(pattern);
+    if (matches) {
+      urls.push(...matches);
+    }
+  }
+  
+  // Check for localhost, private IPs, or internal domains
+  const dangerousUrls = urls.filter(url => {
+    const lowercaseUrl = url.toLowerCase();
+    return lowercaseUrl.includes('localhost') ||
+           lowercaseUrl.includes('127.0.0.1') ||
+           lowercaseUrl.includes('10.') ||
+           lowercaseUrl.includes('192.168.') ||
+           lowercaseUrl.includes('172.') ||
+           lowercaseUrl.includes('169.254.') ||
+           lowercaseUrl.includes('::1') ||
+           lowercaseUrl.includes('0.0.0.0');
+  });
+  
+  return {
+    hasSSRF: dangerousUrls.length > 0,
+    urls: dangerousUrls
+  };
+}
+
+// Enhanced metadata analysis
+function analyzeImageMetadata(metadata: any): { suspicious: boolean; issues: string[] } {
+  const issues: string[] = [];
+  
+  // Check for excessive metadata size
+  if (metadata.exif && Object.keys(metadata.exif).length > 50) {
+    issues.push('Excessive EXIF metadata entries');
+  }
+  
+  // Check for suspicious metadata fields
+  if (metadata.exif) {
+    const suspiciousFields = ['UserComment', 'ImageDescription', 'Software', 'Copyright'];
+    for (const field of suspiciousFields) {
+      if (metadata.exif[field] && typeof metadata.exif[field] === 'string') {
+        const value = metadata.exif[field].toLowerCase();
+        if (value.includes('<script') || value.includes('javascript:') || 
+            value.includes('http://') || value.includes('https://')) {
+          issues.push(`Suspicious content in ${field} metadata`);
+        }
+      }
+    }
+  }
+  
+  return {
+    suspicious: issues.length > 0,
+    issues
+  };
+}
+
+// Secure file validation with comprehensive security checks
 async function validateAndProcessImage(file: File, userId?: string, request?: NextRequest): Promise<Buffer> {
   // Size check
   if (file.size > MAX_FILE_SIZE) {
@@ -101,6 +217,44 @@ async function validateAndProcessImage(file: File, userId?: string, request?: Ne
   
   const buffer = Buffer.from(await file.arrayBuffer());
   
+  // Advanced polyglot file detection
+  const polyglotCheck = detectPolyglotFile(buffer);
+  if (polyglotCheck.isPolyglot) {
+    if (userId) {
+      securityLogger.log({
+        type: SecurityEventType.POLYGLOT_FILE_DETECTED,
+        userId,
+        userAgent: request?.headers.get('user-agent') || undefined,
+        ip: request?.headers.get('x-forwarded-for') || undefined,
+        details: { 
+          evidence: polyglotCheck.evidence,
+          fileName: file.name 
+        },
+        severity: 'high'
+      });
+    }
+    throw new Error('Suspicious file content detected. File may contain malicious code.');
+  }
+  
+  // SSRF prevention
+  const ssrfCheck = checkForSSRFVectors(buffer);
+  if (ssrfCheck.hasSSRF) {
+    if (userId) {
+      securityLogger.log({
+        type: SecurityEventType.SSRF_ATTEMPT,
+        userId,
+        userAgent: request?.headers.get('user-agent') || undefined,
+        ip: request?.headers.get('x-forwarded-for') || undefined,
+        details: { 
+          suspiciousUrls: ssrfCheck.urls,
+          fileName: file.name 
+        },
+        severity: 'critical'
+      });
+    }
+    throw new Error('File contains suspicious network references');
+  }
+
   // Magic number validation
   const fileType = await fileTypeFromBuffer(buffer);
   if (!fileType || !ALLOWED_MIME_TYPES.includes(fileType.mime)) {
@@ -153,6 +307,25 @@ async function validateAndProcessImage(file: File, userId?: string, request?: Ne
         });
       }
       throw new Error('Suspicious image compression detected');
+    }
+    
+    // Enhanced metadata analysis
+    const metadataAnalysis = analyzeImageMetadata(metadata);
+    if (metadataAnalysis.suspicious) {
+      if (userId) {
+        securityLogger.log({
+          type: SecurityEventType.MALICIOUS_METADATA,
+          userId,
+          userAgent: request?.headers.get('user-agent') || undefined,
+          ip: request?.headers.get('x-forwarded-for') || undefined,
+          details: { 
+            issues: metadataAnalysis.issues,
+            fileName: file.name 
+          },
+          severity: 'medium'
+        });
+      }
+      throw new Error('Suspicious metadata detected in image file');
     }
     
     // Resize if needed and strip metadata
