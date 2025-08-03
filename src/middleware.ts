@@ -123,16 +123,10 @@ export function middleware(request: NextRequest) {
     // Cache control for performance
     response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
     
-    // Force proper content type handling
-    if (pathname.endsWith('.jpg') || pathname.endsWith('.jpeg')) {
-      response.headers.set('Content-Type', 'image/jpeg');
-    } else if (pathname.endsWith('.png')) {
-      response.headers.set('Content-Type', 'image/png');
-    } else if (pathname.endsWith('.webp')) {
-      response.headers.set('Content-Type', 'image/webp');
-    } else if (pathname.endsWith('.gif')) {
-      response.headers.set('Content-Type', 'image/gif');
-    }
+    // Remove automatic Content-Type setting based on file extension
+    // This prevents content-type confusion attacks where a malicious file
+    // has the correct extension but different actual content.
+    // The server should validate the actual file content before setting Content-Type.
     
     if (isDev) {
       console.log(`[Middleware] Applied security headers for uploaded file: ${pathname}`);

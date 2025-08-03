@@ -27,13 +27,14 @@ export async function GET(req: NextRequest) {
   try {
     const userId = await getUserFromToken();
     
-    // Check if user is authenticated (in a real app, check if admin)
+    // Check if user is authenticated
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    // For this template, any authenticated user can view security logs
-    // In production, you'd check if the user has admin privileges
+    
+    // TODO: In production, implement proper role-based access control
+    // For now, any authenticated user can view security logs (template only)
+    // Example: Check if user.role === "admin" after fetching user from database
     
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '50');
