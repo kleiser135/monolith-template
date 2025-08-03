@@ -118,7 +118,7 @@ export function TemplateLanding() {
                       and end-to-end testing using Vitest and Cypress.
                     </CardDescription>
                     <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                      <li className="flex items-center"><CheckCircle className="h-4 w-4 mr-2 text-green-500" />151+ unit tests</li>
+                      <li className="flex items-center"><CheckCircle className="h-4 w-4 mr-2 text-green-500" />Comprehensive unit tests</li>
                       <li className="flex items-center"><CheckCircle className="h-4 w-4 mr-2 text-green-500" />E2E test coverage</li>
                       <li className="flex items-center"><CheckCircle className="h-4 w-4 mr-2 text-green-500" />TDD workflow</li>
                     </ul>
