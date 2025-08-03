@@ -5,16 +5,16 @@ describe('Navigation and Landing Page', () => {
     cy.visit('/');
     
     // Check main elements are visible
-    cy.contains('Welcome to the Monolith Template').should('be.visible');
-    cy.contains('Login').should('be.visible');
-    cy.contains('Sign Up').should('be.visible');
+    cy.contains('Build Your Next App').should('be.visible');
+    cy.contains('Get Started').should('be.visible');
+    cy.contains('Sign In').should('be.visible');
   });
 
   it('should navigate from landing page to auth pages', () => {
     cy.visit('/');
     
     // Navigate to login
-    cy.contains('Login').click();
+    cy.contains('Sign In').click();
     cy.url().should('include', '/login');
     cy.contains('Sign in').should('be.visible');
     
