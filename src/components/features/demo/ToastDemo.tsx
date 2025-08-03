@@ -28,7 +28,7 @@ export function ToastDemo() {
 
   // Simulate a long operation for loading toast
   const handleLoadingDemo = () => {
-    const toastId = showLoading("Processing your request...");
+    const _toastId = showLoading("Processing your request...");
     
     setTimeout(() => {
       showSuccess("Request processed successfully!");
@@ -139,11 +139,11 @@ export function ToastDemo() {
       <div className="mt-8 p-4 bg-gray-50 rounded-lg">
         <h3 className="font-semibold mb-2">Usage Examples</h3>
         <div className="text-sm text-gray-600 space-y-1">
-          <div><code>showSuccess("Login successful!")</code> - ✅ Already used in forms</div>
-          <div><code>showError("Invalid credentials")</code> - ❌ Already used in forms</div>
-          <div><code>showInfo("Profile updated")</code> - ℹ️ New: Helpful information</div>
-          <div><code>showWarning("Session expires soon")</code> - ⚠️ New: Important warnings</div>
-          <div><code>showLoading("Saving changes...")</code> - ⏳ New: Ongoing operations</div>
+          <div><code>showSuccess(&quot;Login successful!&quot;)</code> - ✅ Already used in forms</div>
+          <div><code>showError(&quot;Invalid credentials&quot;)</code> - ❌ Already used in forms</div>
+          <div><code>showInfo(&quot;Profile updated&quot;)</code> - ℹ️ New: Helpful information</div>
+          <div><code>showWarning(&quot;Session expires soon&quot;)</code> - ⚠️ New: Important warnings</div>
+          <div><code>showLoading(&quot;Saving changes...&quot;)</code> - ⏳ New: Ongoing operations</div>
           <div><code>showPromise(promise, messages)</code> - 🔄 New: Auto loading→success/error</div>
         </div>
       </div>

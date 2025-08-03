@@ -1,6 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { vi, describe, beforeEach, it, expect } from "vitest";
 import { AppHeader } from "./AppHeader";
 

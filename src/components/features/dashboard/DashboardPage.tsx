@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button/button";
 import { LogoutButton } from "@/components/features/auth/logout-button/LogoutButton";
-import { User, Settings, TestTube, Shield, LogOut } from "lucide-react";
+import { User, TestTube, Shield, LogOut } from "lucide-react";
 
 export function DashboardPage() {
   // No client-side authentication check needed - middleware handles all security
@@ -121,7 +121,7 @@ export function DashboardPage() {
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Session Management</h3>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-            You are securely authenticated. Sign out when you're done to protect your account.
+            You are securely authenticated. Sign out when you&apos;re done to protect your account.
           </p>
           <LogoutButton />
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { AppHeader, AuthHeader } from "./headers";
+import { AppHeader } from "./headers";
 
 interface ConditionalHeaderProps {
   isLoggedIn: boolean;
