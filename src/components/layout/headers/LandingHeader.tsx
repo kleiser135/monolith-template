@@ -13,7 +13,7 @@ interface LandingHeaderProps {
   scrollY: number;
 }
 
-export function LandingHeader({ isMenuOpen, toggleMenu, headerBg, scrollY }: LandingHeaderProps) {
+export function LandingHeader({ isMenuOpen: _isMenuOpen, toggleMenu, headerBg, scrollY }: LandingHeaderProps) {
   const isTransparent = headerBg === 'bg-transparent';
   
   return (
