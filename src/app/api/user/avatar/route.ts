@@ -88,16 +88,16 @@ function detectPolyglotFile(buffer: Buffer): { isPolyglot: boolean; evidence: st
   
   // Check for common polyglot signatures
   const fileStart = buffer.subarray(0, 1024).toString('hex');
-  const fileContent = buffer.toString('binary', 0, Math.min(buffer.length, 8192));
+  const fileContentLower = buffer.toString('binary', 0, Math.min(buffer.length, 8192)).toLowerCase();
   
   // HTML/JS injection in images
-  if (fileContent.includes('<script') || fileContent.includes('javascript:') || 
-      fileContent.includes('<iframe') || fileContent.includes('onerror=')) {
+  if (fileContentLower.includes('<script') || fileContentLower.includes('javascript:') || 
+      fileContentLower.includes('<iframe') || fileContentLower.includes('onerror=')) {
     evidence.push('HTML/JavaScript content detected');
   }
   
   // PHP injection
-  if (fileContent.includes('<?php') || fileContent.includes('<?=')) {
+  if (fileContentLower.includes('<?php') || fileContentLower.includes('<?=')) {
     evidence.push('PHP code detected');
   }
   
@@ -113,13 +113,13 @@ function detectPolyglotFile(buffer: Buffer): { isPolyglot: boolean; evidence: st
   }
   
   // SVG with embedded content (even though we don't allow SVG)
-  if (fileContent.includes('<svg') && (fileContent.includes('<script') || fileContent.includes('onload='))) {
+  if (fileContentLower.includes('<svg') && (fileContentLower.includes('<script') || fileContentLower.includes('onload='))) {
     evidence.push('SVG with embedded scripts detected');
   }
   
   // Suspicious URLs or protocols
-  if (fileContent.match(/https?:\/\//) || fileContent.includes('ftp://') || 
-      fileContent.includes('file://') || fileContent.includes('data:')) {
+  if (fileContentLower.match(/https?:\/\//) || fileContentLower.includes('ftp://') || 
+      fileContentLower.includes('file://') || fileContentLower.includes('data:')) {
     evidence.push('Suspicious URLs or protocols detected');
   }
   
@@ -157,7 +157,7 @@ function checkForSSRFVectors(buffer: Buffer): { hasSSRF: boolean; urls: string[]
            lowercaseUrl.includes('127.0.0.1') ||
            lowercaseUrl.includes('10.') ||
            lowercaseUrl.includes('192.168.') ||
-           lowercaseUrl.includes('172.') ||
+           /172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}/.test(lowercaseUrl) ||
            lowercaseUrl.includes('169.254.') ||
            lowercaseUrl.includes('::1') ||
            lowercaseUrl.includes('0.0.0.0');
@@ -221,7 +221,7 @@ async function validateAndProcessImage(file: File, userId?: string, request?: Ne
   const polyglotCheck = detectPolyglotFile(buffer);
   if (polyglotCheck.isPolyglot) {
     if (userId) {
-      securityLogger.log({
+      await securityLogger.log({
         type: SecurityEventType.POLYGLOT_FILE_DETECTED,
         userId,
         userAgent: request?.headers.get('user-agent') || undefined,
@@ -240,7 +240,7 @@ async function validateAndProcessImage(file: File, userId?: string, request?: Ne
   const ssrfCheck = checkForSSRFVectors(buffer);
   if (ssrfCheck.hasSSRF) {
     if (userId) {
-      securityLogger.log({
+      await securityLogger.log({
         type: SecurityEventType.SSRF_ATTEMPT,
         userId,
         userAgent: request?.headers.get('user-agent') || undefined,
@@ -313,7 +313,7 @@ async function validateAndProcessImage(file: File, userId?: string, request?: Ne
     const metadataAnalysis = analyzeImageMetadata(metadata);
     if (metadataAnalysis.suspicious) {
       if (userId) {
-        securityLogger.log({
+        await securityLogger.log({
           type: SecurityEventType.MALICIOUS_METADATA,
           userId,
           userAgent: request?.headers.get('user-agent') || undefined,
