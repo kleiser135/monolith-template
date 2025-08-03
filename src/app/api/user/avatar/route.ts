@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { writeFile, unlink, mkdir } from 'fs/promises';
-import { join, normalize, relative, isAbsolute } from 'path';
+import { join, normalize, isAbsolute } from 'path';
 import { randomBytes } from 'crypto';
 import { fileTypeFromBuffer } from 'file-type';
 import sharp from 'sharp';
@@ -10,6 +10,9 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 import { realpath } from 'fs/promises';
 import { existsSync } from 'fs';
+import { checkRateLimit } from '@/lib/rate-limiting';
+import { securityLogger, SecurityEventType } from '@/lib/security-logger';
+import { createSecureUploadResponse } from '@/middleware/security-headers';
 
 interface JwtPayload {
   userId: string;
@@ -21,11 +24,6 @@ const MAX_IMAGE_DIMENSION = 4096;
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const UPLOADS_DIR = join(process.cwd(), 'public', 'uploads', 'avatars');
 
-// Validation schema
-const uploadSchema = z.object({
-  file: z.instanceof(File),
-});
-
 // Secure filename generation
 function generateSecureFilename(userId: string): string {
   const timestamp = Date.now();
@@ -34,7 +32,7 @@ function generateSecureFilename(userId: string): string {
 }
 
 // Comprehensive path validation
-function isValidAvatarPath(userPath: string): boolean {
+function isValidAvatarPath(userPath: string, userId?: string): boolean {
   const normalizedPath = normalize(userPath);
   
   // Security checks
@@ -42,6 +40,19 @@ function isValidAvatarPath(userPath: string): boolean {
       isAbsolute(normalizedPath) || // Absolute path
       normalizedPath.includes('..') || // Directory traversal
       /[<>:"|?*]/.test(normalizedPath)) { // Invalid characters
+    
+    if (userId) {
+      securityLogger.log({
+        type: SecurityEventType.PATH_TRAVERSAL_ATTEMPT,
+        userId,
+        details: { 
+          attemptedPath: userPath,
+          normalizedPath,
+          reason: 'Invalid path characters or directory traversal'
+        },
+        severity: 'high'
+      });
+    }
     return false;
   }
   
@@ -49,6 +60,18 @@ function isValidAvatarPath(userPath: string): boolean {
   try {
     const decoded = decodeURIComponent(normalizedPath);
     if (decoded !== normalizedPath && decoded.includes('..')) {
+      if (userId) {
+        securityLogger.log({
+          type: SecurityEventType.PATH_TRAVERSAL_ATTEMPT,
+          userId,
+          details: { 
+            attemptedPath: userPath,
+            decodedPath: decoded,
+            reason: 'URL encoded directory traversal attempt'
+          },
+          severity: 'high'
+        });
+      }
       return false;
     }
   } catch {
@@ -60,9 +83,19 @@ function isValidAvatarPath(userPath: string): boolean {
 }
 
 // Secure file validation with magic numbers
-async function validateAndProcessImage(file: File): Promise<Buffer> {
+async function validateAndProcessImage(file: File, userId?: string, request?: NextRequest): Promise<Buffer> {
   // Size check
   if (file.size > MAX_FILE_SIZE) {
+    if (userId) {
+      securityLogger.log({
+        type: SecurityEventType.FILE_SIZE_EXCEEDED,
+        userId,
+        userAgent: request?.headers.get('user-agent') || undefined,
+        ip: request?.headers.get('x-forwarded-for') || undefined,
+        details: { fileSize: file.size, maxSize: MAX_FILE_SIZE },
+        severity: 'low'
+      });
+    }
     throw new Error('File size exceeds 5MB limit');
   }
   
@@ -71,6 +104,19 @@ async function validateAndProcessImage(file: File): Promise<Buffer> {
   // Magic number validation
   const fileType = await fileTypeFromBuffer(buffer);
   if (!fileType || !ALLOWED_MIME_TYPES.includes(fileType.mime)) {
+    if (userId) {
+      securityLogger.log({
+        type: SecurityEventType.INVALID_FILE_TYPE,
+        userId,
+        userAgent: request?.headers.get('user-agent') || undefined,
+        ip: request?.headers.get('x-forwarded-for') || undefined,
+        details: { 
+          detectedType: fileType?.mime || 'unknown',
+          allowedTypes: ALLOWED_MIME_TYPES 
+        },
+        severity: 'medium'
+      });
+    }
     throw new Error('Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed');
   }
   
@@ -92,6 +138,20 @@ async function validateAndProcessImage(file: File): Promise<Buffer> {
     const pixels = metadata.width * metadata.height;
     const compressionRatio = (pixels * 3) / file.size; // Approximate uncompressed size
     if (compressionRatio > 100) {
+      if (userId) {
+        securityLogger.log({
+          type: SecurityEventType.SUSPICIOUS_COMPRESSION,
+          userId,
+          userAgent: request?.headers.get('user-agent') || undefined,
+          ip: request?.headers.get('x-forwarded-for') || undefined,
+          details: { 
+            compressionRatio,
+            pixels,
+            fileSize: file.size 
+          },
+          severity: 'high'
+        });
+      }
       throw new Error('Suspicious image compression detected');
     }
     
@@ -123,7 +183,14 @@ async function removeAvatarFile(avatarPath: string | null): Promise<void> {
   
   try {
     const filePath = join(process.cwd(), 'public', avatarPath);
-    const resolvedPath = await realpath(filePath).catch(() => filePath);
+    let resolvedPath: string;
+    
+    try {
+      resolvedPath = await realpath(filePath);
+    } catch (err) {
+      console.error('Failed to resolve realpath for avatar file:', err);
+      return;
+    }
     
     // Verify resolved path is within uploads directory
     if (!resolvedPath.startsWith(UPLOADS_DIR)) {
@@ -161,11 +228,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Rate limiting (implement with Redis/Upstash in production)
-    // const rateLimitOk = await checkRateLimit(userId);
-    // if (!rateLimitOk) {
-    //   return NextResponse.json({ error: 'Too many uploads' }, { status: 429 });
-    // }
+    // Rate limiting
+    const rateLimitResult = checkRateLimit(userId);
+    if (!rateLimitResult.allowed) {
+      securityLogger.log({
+        type: SecurityEventType.RATE_LIMIT_EXCEEDED,
+        userId,
+        userAgent: request.headers.get('user-agent') || undefined,
+        ip: request.headers.get('x-forwarded-for') || undefined,
+        details: { resetTime: rateLimitResult.resetTime },
+        severity: 'medium'
+      });
+      
+      return NextResponse.json({ 
+        error: 'Too many uploads. Please try again later.' 
+      }, { 
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': '5',
+          'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+          'X-RateLimit-Reset': Math.ceil(rateLimitResult.resetTime / 1000).toString()
+        }
+      });
+    }
 
     // Parse and validate request
     const formData = await request.formData();
@@ -176,7 +261,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate and process image
-    const processedBuffer = await validateAndProcessImage(file);
+    const processedBuffer = await validateAndProcessImage(file, userId, request);
     
     // Generate secure filename
     const filename = `${generateSecureFilename(userId)}.jpg`;
@@ -214,13 +299,39 @@ export async function POST(request: NextRequest) {
       await removeAvatarFile(currentUser.avatar);
     }
 
-    return NextResponse.json({ 
-      user: updatedUser,
-      message: 'Avatar uploaded successfully' 
+    // Log successful upload
+    securityLogger.log({
+      type: SecurityEventType.AVATAR_UPLOAD_SUCCESS,
+      userId,
+      userAgent: request.headers.get('user-agent') || undefined,
+      ip: request.headers.get('x-forwarded-for') || undefined,
+      details: { 
+        filename,
+        fileSize: processedBuffer.length,
+        originalSize: file.size 
+      },
+      severity: 'low'
     });
+
+    return createSecureUploadResponse({ 
+      user: updatedUser 
+    }, 'Avatar uploaded successfully');
 
   } catch (error) {
     console.error('Avatar upload error:', error);
+    
+    // Log failed upload attempt
+    const userId = await getUserFromToken();
+    if (userId) {
+      securityLogger.log({
+        type: SecurityEventType.AVATAR_UPLOAD_FAILED,
+        userId,
+        userAgent: request.headers.get('user-agent') || undefined,
+        ip: request.headers.get('x-forwarded-for') || undefined,
+        details: { error: error instanceof Error ? error.message : 'Unknown error' },
+        severity: 'medium'
+      });
+    }
     
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Invalid request data' }, { status: 400 });
@@ -259,10 +370,34 @@ export async function DELETE(request: NextRequest) {
     // Then clean up file
     await removeAvatarFile(user.avatar);
 
+    // Log successful deletion
+    securityLogger.log({
+      type: SecurityEventType.AVATAR_DELETE_SUCCESS,
+      userId,
+      userAgent: request.headers.get('user-agent') || undefined,
+      ip: request.headers.get('x-forwarded-for') || undefined,
+      details: { deletedFile: user.avatar },
+      severity: 'low'
+    });
+
     return NextResponse.json({ message: 'Avatar removed successfully' });
 
   } catch (error) {
     console.error('Avatar removal error:', error);
+    
+    // Log failed deletion attempt
+    const userId = await getUserFromToken();
+    if (userId) {
+      securityLogger.log({
+        type: SecurityEventType.AVATAR_DELETE_FAILED,
+        userId,
+        userAgent: request.headers.get('user-agent') || undefined,
+        ip: request.headers.get('x-forwarded-for') || undefined,
+        details: { error: error instanceof Error ? error.message : 'Unknown error' },
+        severity: 'medium'
+      });
+    }
+    
     return NextResponse.json({ error: 'Failed to remove avatar' }, { status: 500 });
   }
 }
