@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const fileExtension = path.extname(file.name);
-    const fileName = `${userId}-${Date.now()}${fileExtension}`;
+    const randomString = crypto.randomBytes(16).toString('hex');
+    const fileName = `${userId}-${Date.now()}-${randomString}${fileExtension}`;
     const filePath = path.join(uploadsDir, fileName);
 
     // Convert file to buffer and save
