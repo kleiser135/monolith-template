@@ -108,8 +108,9 @@ export function AvatarUpload({ currentAvatar, onAvatarUpdate }: AvatarUploadProp
         {previewUrl && !isUploading && (
           <button
             onClick={handleRemoveAvatar}
-            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white transition-colors"
+            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
             title="Remove avatar"
+            aria-label="Remove avatar"
           >
             <X className="w-3 h-3" />
           </button>

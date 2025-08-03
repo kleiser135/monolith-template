@@ -102,9 +102,10 @@ export async function POST(request: NextRequest) {
 
     // Remove old avatar file if it exists and is valid
     if (currentUser?.avatar && isValidAvatarPath(currentUser.avatar)) {
-      const publicDir = path.join(process.cwd(), 'public');
+      const publicDir = path.resolve(process.cwd(), 'public');
       const oldFilePath = path.resolve(publicDir, currentUser.avatar);
-      if (oldFilePath.startsWith(publicDir + path.sep)) {
+      const relative = path.relative(publicDir, oldFilePath);
+      if (relative && !relative.startsWith('..') && !path.isAbsolute(relative)) {
         try {
           if (existsSync(oldFilePath)) {
             await unlink(oldFilePath);
@@ -152,18 +153,16 @@ export async function DELETE() {
 
     // Remove avatar file if it exists and is valid
     if (currentUser?.avatar && isValidAvatarPath(currentUser.avatar)) {
-      const publicDir = path.join(process.cwd(), 'public');
-      const filePath = path.resolve(publicDir, currentUser.avatar);
-      if (filePath.startsWith(publicDir + path.sep)) {
+      const publicDir = path.resolve(process.cwd(), 'public');
+      const filePath = path.join(publicDir, 'uploads', 'avatars',
+        path.basename(currentUser.avatar));
+      const resolvedFilePath = path.resolve(filePath);
+      if (existsSync(resolvedFilePath)) {
         try {
-          if (existsSync(filePath)) {
-            await unlink(filePath);
-          }
+          await unlink(resolvedFilePath);
         } catch (error) {
           console.warn('Failed to delete avatar file:', error);
         }
-      } else {
-        console.warn('Attempted path traversal in avatar filename:', currentUser.avatar);
       }
     } else if (currentUser?.avatar) {
       console.warn('Attempted path traversal in avatar filename:', currentUser.avatar);
