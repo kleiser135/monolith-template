@@ -178,7 +178,7 @@ export function TemplateLanding() {
           >
             <div className="grid grid-cols-1 gap-y-10 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-0">
               <motion.div variants={fadeInUp} className="flex flex-col items-center text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold" aria-label="Step 1 of 3">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold" aria-label="Step 1: Clone & Setup">
                   1
                 </div>
                 <h3 className="mt-6 text-lg font-semibold">Clone & Setup</h3>
