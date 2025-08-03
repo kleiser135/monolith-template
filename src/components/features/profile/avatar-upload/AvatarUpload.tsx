@@ -137,7 +137,7 @@ export function AvatarUpload({ currentAvatar, onAvatarUpdate }: AvatarUploadProp
         </Button>
 
         <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
-          JPG, PNG or GIF. Max 5MB.
+          JPG, PNG, WebP, or GIF. Max 5MB.
         </p>
       </div>
 
