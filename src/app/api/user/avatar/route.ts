@@ -126,7 +126,7 @@ export async function DELETE() {
           await unlink(filePath);
         }
       } catch (error) {
-        console.warn(`Failed to delete avatar file at ${filePath}:`, error);
+        console.warn(`Failed to delete avatar file for user ${userId}:`, error);
       }
     }
 
