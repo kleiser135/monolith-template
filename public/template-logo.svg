@@ -1,0 +1,12 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Template Logo - Simple geometric design -->
+  <rect width="64" height="64" rx="16" fill="url(#gradient)" />
+  <rect x="16" y="16" width="32" height="32" rx="8" fill="white" fill-opacity="0.2" />
+  <rect x="24" y="24" width="16" height="16" rx="4" fill="white" fill-opacity="0.4" />
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

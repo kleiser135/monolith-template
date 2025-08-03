@@ -35,10 +35,8 @@ export function SharedBackground({ children, variant = 'landing' }: SharedBackgr
     return {
       className: "min-h-screen bg-slate-900 relative overflow-hidden",
       style: {
-        backgroundImage: "url('/hero-background.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center 90%",
-        backgroundRepeat: "no-repeat"
+        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%)",
+        backgroundAttachment: "fixed"
       }
     };
   };
@@ -50,16 +48,13 @@ export function SharedBackground({ children, variant = 'landing' }: SharedBackgr
       className={backgroundConfig.className}
       style={variant === 'auth' ? { backgroundColor: '#0f172a' } : backgroundConfig.style}
     >
-      {/* Background image layer - only for auth variant with blur */}
+      {/* Background gradient layer - for auth variant */}
       {variant === 'auth' && (
         <div 
           className="absolute inset-0"
           style={{
-            backgroundImage: "url('/wizard-duel.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "60% 35%",
-            backgroundRepeat: "no-repeat",
-            filter: "blur(4px)"
+            background: "linear-gradient(45deg, #0f172a 0%, #1e293b 25%, #334155 75%, #475569 100%)",
+            opacity: 0.9
           }}
         />
       )}
