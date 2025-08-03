@@ -198,7 +198,7 @@ export function TemplateLanding() {
               </motion.div>
 
               <motion.div variants={fadeInUp} className="flex flex-col items-center text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold" aria-label="Step 3 of 3">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold" aria-label="Step 3: Deploy">
                   3
                 </div>
                 <h3 className="mt-6 text-lg font-semibold">Deploy</h3>
