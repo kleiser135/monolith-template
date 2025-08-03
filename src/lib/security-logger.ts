@@ -12,7 +12,10 @@ export enum SecurityEventType {
   SUSPICIOUS_COMPRESSION = 'suspicious_compression',
   MALICIOUS_METADATA = 'malicious_metadata',
   DECOMPRESSION_BOMB = 'decompression_bomb',
-  MIME_MISMATCH = 'mime_mismatch'
+  MIME_MISMATCH = 'mime_mismatch',
+  POLYGLOT_FILE_DETECTED = 'polyglot_file_detected',
+  SSRF_ATTEMPT = 'ssrf_attempt',
+  CONTENT_ANALYSIS_FAILED = 'content_analysis_failed'
 }
 
 export interface SecurityEvent {
