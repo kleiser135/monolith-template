@@ -88,6 +88,8 @@ function detectPolyglotFile(buffer: Buffer): { isPolyglot: boolean; evidence: st
   
   // Check for common polyglot signatures
   const fileStart = buffer.subarray(0, 1024).toString('hex');
+  
+  // Convert buffer to binary string and lowercase once, reuse for all checks below
   const fileContentLower = buffer.toString('binary', 0, Math.min(buffer.length, 8192)).toLowerCase();
   
   // HTML/JS injection in images
@@ -157,7 +159,7 @@ function checkForSSRFVectors(buffer: Buffer): { hasSSRF: boolean; urls: string[]
            lowercaseUrl.includes('127.0.0.1') ||
            lowercaseUrl.includes('10.') ||
            lowercaseUrl.includes('192.168.') ||
-           /172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}/.test(lowercaseUrl) ||
+           /172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}/.test(lowercaseUrl) ||
            lowercaseUrl.includes('169.254.') ||
            lowercaseUrl.includes('::1') ||
            lowercaseUrl.includes('0.0.0.0');

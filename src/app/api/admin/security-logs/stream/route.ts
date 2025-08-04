@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { securityLogger } from "@/lib/security-logger";
 import { prisma } from "@/lib/prisma";
 
 interface JwtPayload {
@@ -43,7 +42,7 @@ function isAdmin(user: { email: string } | null): boolean {
   return adminEmails.includes(user.email);
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const userId = await getUserFromToken();
     
@@ -57,40 +56,62 @@ export async function GET(req: NextRequest) {
     if (!isAdmin(user)) {
       return NextResponse.json({ error: "Forbidden: Admins only" }, { status: 403 });
     }
-    
-    const { searchParams } = new URL(req.url);
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const userFilter = searchParams.get('userId');
 
-    let events;
-    if (userFilter) {
-      events = await securityLogger.getEventsByUserFromDatabase(userFilter, limit);
-    } else {
-      events = await securityLogger.getRecentEventsFromDatabase(limit);
-    }
-
-    // Format events for frontend consumption
-    const formattedEvents = events.map(event => ({
-      id: event.id,
-      eventType: event.eventType,
-      userId: event.userId,
-      userEmail: event.user?.email || 'Unknown',
-      userName: event.user?.name || 'Unknown',
-      timestamp: event.timestamp,
-      severity: event.severity,
-      ipAddress: event.ipAddress,
-      userAgent: event.userAgent,
-      details: JSON.parse(event.details || '{}'),
-    }));
-
-    return NextResponse.json({ 
-      events: formattedEvents,
-      total: events.length,
+    // Set up SSE headers
+    const headers = new Headers({
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
     });
+
+    // Create a readable stream for SSE
+    const stream = new ReadableStream({
+      start(controller) {
+        // Send initial data
+        const sendEvents = async () => {
+          try {
+            const events = await prisma.securityLog.findMany({
+              orderBy: { timestamp: 'desc' },
+              take: 50,
+              include: {
+                user: {
+                  select: { email: true }
+                }
+              }
+            });
+
+            const eventData = {
+              events: events.map(event => ({
+                ...event,
+                details: JSON.parse(event.details || '{}')
+              }))
+            };
+
+            controller.enqueue(`data: ${JSON.stringify(eventData)}\n\n`);
+          } catch (error) {
+            controller.enqueue(`data: ${JSON.stringify({ error: 'Failed to fetch events' })}\n\n`);
+          }
+        };
+
+        // Send initial events
+        sendEvents();
+
+        // Set up periodic updates (every 30 seconds)
+        const interval = setInterval(sendEvents, 30000);
+
+        // Cleanup function
+        return () => {
+          clearInterval(interval);
+        };
+      }
+    });
+
+    return new Response(stream, { headers });
+
   } catch (error) {
-    console.error("Failed to fetch security logs:", error);
+    console.error('Security logs stream error:', error);
     return NextResponse.json(
-      { error: "Failed to fetch security logs" },
+      { error: "Internal server error" }, 
       { status: 500 }
     );
   }

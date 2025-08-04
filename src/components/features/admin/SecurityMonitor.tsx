@@ -27,27 +27,30 @@ export function SecurityMonitor({ className }: SecurityMonitorProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSecurityEvents();
-    const interval = setInterval(fetchSecurityEvents, 30000); // Refresh every 30s
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchSecurityEvents = async () => {
-    try {
-      const response = await fetch("/api/admin/security-logs?limit=50");
-      if (!response.ok) {
-        throw new Error("Failed to fetch security events");
+    setLoading(true);
+    const eventSource = new EventSource("/api/admin/security-logs/stream");
+    
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setEvents(data.events);
+        setError(null);
+      } catch (err) {
+        setError("Failed to parse security event data");
+      } finally {
+        setLoading(false);
       }
-      const data = await response.json();
-      setEvents(data.events);
-      setError(null);
-    } catch (err) {
-      console.error("Failed to fetch security events:", err);
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
+    };
+
+    eventSource.onerror = (_err) => {
+      setError("Error receiving security events");
       setLoading(false);
-    }
-  };
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, []);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
