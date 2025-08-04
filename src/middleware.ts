@@ -103,6 +103,37 @@ export function middleware(request: NextRequest) {
   if (isDev) {
     console.log(`[Middleware] ${pathname}`);
   }
+
+  // Handle security headers for uploaded files
+  if (pathname.startsWith('/uploads/')) {
+    const response = NextResponse.next();
+    
+    // Apply strict security headers for uploaded files
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    // Strict Content Security Policy for uploaded files
+    response.headers.set(
+      'Content-Security-Policy',
+      "default-src 'none'; img-src 'self'; style-src 'none'; script-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; font-src 'none'; connect-src 'none'; media-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none';"
+    );
+    
+    // Cache control for performance
+    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    
+    // Remove automatic Content-Type setting based on file extension
+    // This prevents content-type confusion attacks where a malicious file
+    // has the correct extension but different actual content.
+    // The server should validate the actual file content before setting Content-Type.
+    
+    if (isDev) {
+      console.log(`[Middleware] Applied security headers for uploaded file: ${pathname}`);
+    }
+    
+    return response;
+  }
   
   // Validate authentication status
   let isAuthenticated = false;
