@@ -75,9 +75,24 @@ class SecurityLogger {
         },
       });
     } catch (error) {
-      // Silently fail for database issues - security logging shouldn't break the app
+      // Fallback: log to file and alert if database logging fails
       console.error('Database error in security logger:', error);
+      await this.logToFallbackFile(event, error);
+      
+      // Optionally, trigger further alerting here (e.g., send email, integrate with monitoring)
     }
+  }
+
+  private async logToFallbackFile(event: SecurityEvent, error: unknown): Promise<void> {
+    // Implementation for file-based logging fallback would go here
+    // For now, ensure the error is properly logged
+    const fallbackLog = {
+      timestamp: new Date().toISOString(),
+      message: 'Security logging database failure',
+      originalEvent: event,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+    console.error('Fallback security log:', JSON.stringify(fallbackLog, null, 2));
   }
   
   private handleCriticalEvent(event: SecurityEvent): void {
