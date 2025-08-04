@@ -27,28 +27,55 @@ export function SecurityMonitor({ className }: SecurityMonitorProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    const eventSource = new EventSource("/api/admin/security-logs/stream");
-    
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        setEvents(data.events);
-        setError(null);
-      } catch (err) {
-        setError("Failed to parse security event data");
-      } finally {
+    let eventSource: EventSource | null = null;
+    let reconnectAttempts = 0;
+    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+    let isMounted = true;
+
+    const connect = () => {
+      setLoading(true);
+      eventSource = new EventSource("/api/admin/security-logs/stream");
+      
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          setEvents(data.events);
+          setError(null);
+          reconnectAttempts = 0; // reset backoff on success
+        } catch (err) {
+          setError("Failed to parse security event data");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      eventSource.onerror = (_err) => {
+        setError("Error receiving security events");
         setLoading(false);
-      }
+        
+        if (isMounted && reconnectAttempts < 5) {
+          reconnectAttempts++;
+          const backoffDelay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+          
+          reconnectTimeout = setTimeout(() => {
+            if (isMounted) {
+              connect();
+            }
+          }, backoffDelay);
+        }
+      };
     };
 
-    eventSource.onerror = (_err) => {
-      setError("Error receiving security events");
-      setLoading(false);
-    };
+    connect();
 
     return () => {
-      eventSource.close();
+      isMounted = false;
+      if (eventSource) {
+        eventSource.close();
+      }
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
     };
   }, []);
 

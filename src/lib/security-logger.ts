@@ -52,7 +52,11 @@ class SecurityLogger {
     
     // Store in database asynchronously (don't wait for it)
     this.saveToDatabase(securityEvent).catch(error => {
-      console.error('Failed to save security event to database:', error);
+      try {
+        console.error('Failed to save security event to database:', error);
+      } catch (fallbackError) {
+        // Last-resort: swallow error to avoid unhandled promise rejection
+      }
     });
     
     // For critical events, consider immediate alerting
