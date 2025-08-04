@@ -542,7 +542,7 @@ export async function POST(request: NextRequest) {
       filename,
       fileSize: processedBuffer.length,
       originalSize: file.size,
-      compressionRatio: file.size === 0 ? 'N/A' : (((file.size - processedBuffer.length) / file.size) * 100).toFixed(2) + '%'
+      compressionRatio: file.size === 0 ? 'N/A' : (Math.max(0, ((file.size - processedBuffer.length) / file.size) * 100)).toFixed(2) + '%'
     }, {
       ip: request.headers.get('x-forwarded-for') || undefined,
       userAgent: request.headers.get('user-agent') || undefined

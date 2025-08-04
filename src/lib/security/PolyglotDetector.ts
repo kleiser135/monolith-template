@@ -170,7 +170,7 @@ export class PolyglotDetector {
           const dom = new JSDOM(content, { 
             url: 'http://localhost',
             pretendToBeVisual: false,
-            resources: 'usable'
+            resources: undefined // Disable resource loading for security
           });
           
           const document = dom.window.document;

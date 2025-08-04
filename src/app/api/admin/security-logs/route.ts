@@ -28,7 +28,7 @@ async function getUserById(userId: string) {
   try {
     return await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true }
+      select: { id: true, email: true, role: true }
     });
   } catch (_error) {
     return null;
