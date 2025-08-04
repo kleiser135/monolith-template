@@ -13,6 +13,9 @@ import { existsSync } from 'fs';
 import { checkRateLimit } from '@/lib/rate-limiting';
 import { securityLogger, SecurityEventType } from '@/lib/security-logger';
 import { createSecureUploadResponse } from '@/middleware/security-headers';
+import { PolyglotDetector } from '@/lib/security/PolyglotDetector';
+import { IPValidator } from '@/lib/security/IPValidator';
+import { EnhancedSecurityLogger } from '@/lib/security/EnhancedSecurityLogger';
 
 interface JwtPayload {
   userId: string;
@@ -82,48 +85,55 @@ function isValidAvatarPath(userPath: string, userId?: string): boolean {
   return normalizedPath.startsWith('uploads/avatars/');
 }
 
-// Advanced polyglot file detection
+// Enhanced polyglot detection using enterprise security module
 function detectPolyglotFile(buffer: Buffer): { isPolyglot: boolean; evidence: string[] } {
+  try {
+    // Use enterprise PolyglotDetector with comprehensive analysis
+    const result = PolyglotDetector.analyze(buffer, 1024 * 1024); // 1MB max analysis
+    
+    // Convert enterprise result to legacy format for compatibility
+    const evidence = result.evidence.map(e => `${e.type}: ${e.description}`);
+    
+    // Log detection results for monitoring
+    if (result.isPolyglot) {
+      EnhancedSecurityLogger.getInstance().logCritical('polyglot_file_detected', {
+        riskLevel: result.riskLevel,
+        recommendation: result.recommendation,
+        evidenceCount: result.evidence.length,
+        analysisSize: Math.min(buffer.length, 1024 * 1024)
+      });
+    }
+    
+    return {
+      isPolyglot: result.riskLevel === 'critical' || result.riskLevel === 'high',
+      evidence
+    };
+  } catch (error) {
+    // Fallback to basic detection on error
+    EnhancedSecurityLogger.getInstance().logCritical('polyglot_detection_error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      fallbackToBasicDetection: true
+    });
+    
+    return detectPolyglotFileBasic(buffer);
+  }
+}
+
+// Fallback basic detection for error scenarios
+function detectPolyglotFileBasic(buffer: Buffer): { isPolyglot: boolean; evidence: string[] } {
   const evidence: string[] = [];
   
-  // Check for common polyglot signatures
-  const fileStart = buffer.subarray(0, 1024).toString('hex');
-  
-  // Limit analysis to smaller portions for better performance on large files
-  const maxAnalysisSize = Math.min(buffer.length, 4096); // Reduced from 8192
+  // Basic analysis with reduced scope
+  const maxAnalysisSize = Math.min(buffer.length, 4096);
   const fileContentLower = buffer.toString('binary', 0, maxAnalysisSize).toLowerCase();
   
-  // HTML/JS injection in images
-  if (fileContentLower.includes('<script') || fileContentLower.includes('javascript:') || 
-      fileContentLower.includes('<iframe') || fileContentLower.includes('onerror=')) {
-    evidence.push('HTML/JavaScript content detected');
+  // Critical patterns only
+  if (fileContentLower.includes('<script') || fileContentLower.includes('javascript:')) {
+    evidence.push('Script content detected');
   }
   
-  // PHP injection
-  if (fileContentLower.includes('<?php') || fileContentLower.includes('<?=')) {
+  if (fileContentLower.includes('<?php')) {
     evidence.push('PHP code detected');
-  }
-  
-  // Multiple file format headers (polyglot)
-  const hasJPEG = fileStart.startsWith('ffd8ff');
-  const hasPNG = fileStart.startsWith('89504e47');
-  const hasGIF = fileStart.startsWith('474946');
-  const hasWebP = fileStart.includes('57454250');
-  
-  const formatCount = [hasJPEG, hasPNG, hasGIF, hasWebP].filter(Boolean).length;
-  if (formatCount > 1) {
-    evidence.push('Multiple image format signatures detected');
-  }
-  
-  // SVG with embedded content (even though we don't allow SVG)
-  if (fileContentLower.includes('<svg') && (fileContentLower.includes('<script') || fileContentLower.includes('onload='))) {
-    evidence.push('SVG with embedded scripts detected');
-  }
-  
-  // Suspicious URLs or protocols
-  if (fileContentLower.match(/https?:\/\//) || fileContentLower.includes('ftp://') || 
-      fileContentLower.includes('file://') || fileContentLower.includes('data:')) {
-    evidence.push('Suspicious URLs or protocols detected');
   }
   
   return {
@@ -132,44 +142,100 @@ function detectPolyglotFile(buffer: Buffer): { isPolyglot: boolean; evidence: st
   };
 }
 
-// SSRF prevention - check for embedded URLs
+// SSRF prevention - check for embedded URLs in metadata regions only
 function checkForSSRFVectors(buffer: Buffer): { hasSSRF: boolean; urls: string[] } {
-  const content = buffer.toString('binary', 0, Math.min(buffer.length, 16384));
   const urls: string[] = [];
   
-  // Look for various URL patterns
-  const urlPatterns = [
-    /https?:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
-    /ftp:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
-    /file:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
-    /gopher:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
-    /ldap:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
-  ];
+  // Define metadata regions for common image formats
+  const metadataRegions = extractMetadataRegions(buffer);
   
-  for (const pattern of urlPatterns) {
-    const matches = content.match(pattern);
-    if (matches) {
-      urls.push(...matches);
+  // Only analyze content within metadata regions to reduce false positives
+  for (const region of metadataRegions) {
+    const content = buffer.toString('binary', region.start, Math.min(region.end, buffer.length));
+    
+    // Look for various URL patterns
+    const urlPatterns = [
+      /https?:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+      /ftp:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+      /file:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+      /gopher:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+      /ldap:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+    ];
+    
+    for (const pattern of urlPatterns) {
+      const matches = content.match(pattern);
+      if (matches) {
+        urls.push(...matches);
+      }
     }
   }
   
-  // Check for localhost, private IPs, or internal domains
+  // Check for dangerous URLs using enterprise IP validation
   const dangerousUrls = urls.filter(url => {
-    const lowercaseUrl = url.toLowerCase();
-    return lowercaseUrl.includes('localhost') ||
-           lowercaseUrl.includes('127.0.0.1') ||
-           lowercaseUrl.includes('10.') ||
-           lowercaseUrl.includes('192.168.') ||
-           /172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}/.test(lowercaseUrl) ||
-           lowercaseUrl.includes('169.254.') ||
-           lowercaseUrl.includes('::1') ||
-           lowercaseUrl.includes('0.0.0.0');
+    try {
+      // First check if URL contains an IP address
+      const ipValidation = IPValidator.validateURLHost(url);
+      if (ipValidation) {
+        // URL contains an IP - check if it's safe
+        return !ipValidation.allowedForSSRF;
+      }
+      
+      // For domain names, check for suspicious patterns
+      const lowercaseUrl = url.toLowerCase();
+      return lowercaseUrl.includes('localhost') ||
+             lowercaseUrl.includes('127.0.0.1') ||
+             lowercaseUrl.includes('0.0.0.0') ||
+             lowercaseUrl.includes('::1');
+    } catch {
+      // If validation fails, consider it dangerous
+      return true;
+    }
   });
   
   return {
     hasSSRF: dangerousUrls.length > 0,
     urls: dangerousUrls
   };
+}
+
+// Extract metadata regions from image buffer based on format
+function extractMetadataRegions(buffer: Buffer): Array<{ start: number; end: number }> {
+  const regions: Array<{ start: number; end: number }> = [];
+  
+  // JPEG EXIF data starts after SOI marker (0xFFD8)
+  if (buffer.length >= 4 && buffer[0] === 0xFF && buffer[1] === 0xD8) {
+    // Look for EXIF APP1 marker (0xFFE1)
+    for (let i = 2; i < buffer.length - 4; i++) {
+      if (buffer[i] === 0xFF && buffer[i + 1] === 0xE1) {
+        const segmentLength = (buffer[i + 2] << 8) | buffer[i + 3];
+        regions.push({ start: i + 4, end: i + 4 + segmentLength });
+        i += segmentLength + 2;
+      }
+    }
+  }
+  
+  // PNG metadata chunks (after PNG signature)
+  if (buffer.length >= 8 && buffer.toString('ascii', 0, 8) === '\x89PNG\r\n\x1a\n') {
+    let offset = 8;
+    while (offset < buffer.length - 8) {
+      const chunkLength = buffer.readUInt32BE(offset);
+      const chunkType = buffer.toString('ascii', offset + 4, offset + 8);
+      
+      // Only scan text chunks and other metadata
+      if (['tEXt', 'zTXt', 'iTXt', 'eXIf', 'pHYs', 'tIME'].includes(chunkType)) {
+        regions.push({ start: offset + 8, end: offset + 8 + chunkLength });
+      }
+      
+      offset += 12 + chunkLength; // 4 bytes length + 4 bytes type + data + 4 bytes CRC
+    }
+  }
+  
+  // If no specific metadata regions found, scan first 4KB only
+  if (regions.length === 0) {
+    regions.push({ start: 0, end: Math.min(4096, buffer.length) });
+  }
+  
+  return regions;
 }
 
 // Enhanced metadata analysis
@@ -224,16 +290,14 @@ async function validateAndProcessImage(file: File, userId?: string, request?: Ne
   const polyglotCheck = detectPolyglotFile(buffer);
   if (polyglotCheck.isPolyglot) {
     if (userId) {
-      await securityLogger.log({
-        type: SecurityEventType.POLYGLOT_FILE_DETECTED,
-        userId,
-        userAgent: request?.headers.get('user-agent') || undefined,
+      await EnhancedSecurityLogger.getInstance().logUpload('validation_failed', userId, {
+        reason: 'polyglot_file_detected',
+        evidence: polyglotCheck.evidence,
+        fileName: file.name,
+        fileSize: buffer.length
+      }, {
         ip: request?.headers.get('x-forwarded-for') || undefined,
-        details: { 
-          evidence: polyglotCheck.evidence,
-          fileName: file.name 
-        },
-        severity: 'high'
+        userAgent: request?.headers.get('user-agent') || undefined
       });
     }
     throw new Error('Suspicious file content detected. File may contain malicious code.');
@@ -243,16 +307,14 @@ async function validateAndProcessImage(file: File, userId?: string, request?: Ne
   const ssrfCheck = checkForSSRFVectors(buffer);
   if (ssrfCheck.hasSSRF) {
     if (userId) {
-      await securityLogger.log({
-        type: SecurityEventType.SSRF_ATTEMPT,
-        userId,
-        userAgent: request?.headers.get('user-agent') || undefined,
+      await EnhancedSecurityLogger.getInstance().logCritical('ssrf_attempt_detected', {
+        suspiciousUrls: ssrfCheck.urls,
+        fileName: file.name,
+        fileSize: buffer.length
+      }, {
         ip: request?.headers.get('x-forwarded-for') || undefined,
-        details: { 
-          suspiciousUrls: ssrfCheck.urls,
-          fileName: file.name 
-        },
-        severity: 'critical'
+        userAgent: request?.headers.get('user-agent') || undefined,
+        userId
       });
     }
     throw new Error('File contains suspicious network references');
@@ -476,17 +538,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Log successful upload
-    securityLogger.log({
-      type: SecurityEventType.AVATAR_UPLOAD_SUCCESS,
-      userId,
-      userAgent: request.headers.get('user-agent') || undefined,
+    await EnhancedSecurityLogger.getInstance().logUpload('upload_success', userId, {
+      filename,
+      fileSize: processedBuffer.length,
+      originalSize: file.size,
+      compressionRatio: ((file.size - processedBuffer.length) / file.size * 100).toFixed(2) + '%'
+    }, {
       ip: request.headers.get('x-forwarded-for') || undefined,
-      details: { 
-        filename,
-        fileSize: processedBuffer.length,
-        originalSize: file.size 
-      },
-      severity: 'low'
+      userAgent: request.headers.get('user-agent') || undefined
     });
 
     return createSecureUploadResponse({ 
@@ -499,13 +558,12 @@ export async function POST(request: NextRequest) {
     // Log failed upload attempt
     const userId = await getUserFromToken();
     if (userId) {
-      securityLogger.log({
-        type: SecurityEventType.AVATAR_UPLOAD_FAILED,
-        userId,
-        userAgent: request.headers.get('user-agent') || undefined,
+      await EnhancedSecurityLogger.getInstance().logUpload('validation_failed', userId, {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stage: 'processing'
+      }, {
         ip: request.headers.get('x-forwarded-for') || undefined,
-        details: { error: error instanceof Error ? error.message : 'Unknown error' },
-        severity: 'medium'
+        userAgent: request.headers.get('user-agent') || undefined
       });
     }
     
