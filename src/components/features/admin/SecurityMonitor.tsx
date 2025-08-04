@@ -55,7 +55,7 @@ export function SecurityMonitor({ className }: SecurityMonitorProps) {
         
         if (isMounted && reconnectAttempts < 5) {
           reconnectAttempts++;
-          const backoffDelay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+          const backoffDelay = Math.min(1000 * (2 ** reconnectAttempts), 30000);
           
           reconnectTimeout = setTimeout(() => {
             if (isMounted) {

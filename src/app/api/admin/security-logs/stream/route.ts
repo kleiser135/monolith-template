@@ -68,6 +68,8 @@ export async function GET(_req: NextRequest) {
     // Create a readable stream for SSE
     const stream = new ReadableStream({
       start(controller) {
+        let lastEventTimestamp: string | null = null;
+        
         // Send initial data
         const sendEvents = async () => {
           try {
