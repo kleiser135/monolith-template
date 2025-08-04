@@ -13,6 +13,9 @@ import { existsSync } from 'fs';
 import { checkRateLimit } from '@/lib/rate-limiting';
 import { securityLogger, SecurityEventType } from '@/lib/security-logger';
 import { createSecureUploadResponse } from '@/middleware/security-headers';
+import { PolyglotDetector } from '@/lib/security/PolyglotDetector';
+import { IPValidator } from '@/lib/security/IPValidator';
+import { EnhancedSecurityLogger } from '@/lib/security/EnhancedSecurityLogger';
 
 interface JwtPayload {
   userId: string;
@@ -82,7 +85,189 @@ function isValidAvatarPath(userPath: string, userId?: string): boolean {
   return normalizedPath.startsWith('uploads/avatars/');
 }
 
-// Secure file validation with magic numbers
+// Enhanced polyglot detection using enterprise security module
+function detectPolyglotFile(buffer: Buffer): { isPolyglot: boolean; evidence: string[] } {
+  try {
+    // Use enterprise PolyglotDetector with comprehensive analysis
+    const result = PolyglotDetector.analyze(buffer, 1024 * 1024); // 1MB max analysis
+    
+    // Convert enterprise result to legacy format for compatibility
+    const evidence = result.evidence.map(e => `${e.type}: ${e.description}`);
+    
+    // Log detection results for monitoring
+    if (result.isPolyglot) {
+      EnhancedSecurityLogger.getInstance().logCritical('polyglot_file_detected', {
+        riskLevel: result.riskLevel,
+        recommendation: result.recommendation,
+        evidenceCount: result.evidence.length,
+        analysisSize: Math.min(buffer.length, 1024 * 1024)
+      });
+    }
+    
+    return {
+      isPolyglot: result.riskLevel === 'critical' || result.riskLevel === 'high',
+      evidence
+    };
+  } catch (error) {
+    // Fallback to basic detection on error
+    EnhancedSecurityLogger.getInstance().logCritical('polyglot_detection_error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      fallbackToBasicDetection: true
+    });
+    
+    return detectPolyglotFileBasic(buffer);
+  }
+}
+
+// Fallback basic detection for error scenarios
+function detectPolyglotFileBasic(buffer: Buffer): { isPolyglot: boolean; evidence: string[] } {
+  const evidence: string[] = [];
+  
+  // Basic analysis with reduced scope
+  const maxAnalysisSize = Math.min(buffer.length, 4096);
+  const fileContentLower = buffer.toString('binary', 0, maxAnalysisSize).toLowerCase();
+  
+  // Critical patterns only
+  if (fileContentLower.includes('<script') || fileContentLower.includes('javascript:')) {
+    evidence.push('Script content detected');
+  }
+  
+  if (fileContentLower.includes('<?php')) {
+    evidence.push('PHP code detected');
+  }
+  
+  return {
+    isPolyglot: evidence.length > 0,
+    evidence
+  };
+}
+
+// SSRF prevention - check for embedded URLs in metadata regions only
+function checkForSSRFVectors(buffer: Buffer): { hasSSRF: boolean; urls: string[] } {
+  const urls: string[] = [];
+  
+  // Define metadata regions for common image formats
+  const metadataRegions = extractMetadataRegions(buffer);
+  
+  // Only analyze content within metadata regions to reduce false positives
+  for (const region of metadataRegions) {
+    const content = buffer.toString('binary', region.start, Math.min(region.end, buffer.length));
+    
+    // Look for various URL patterns
+    const urlPatterns = [
+      /https?:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+      /ftp:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+      /file:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+      /gopher:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+      /ldap:\/\/[^\s<>"'{}|\\\^`[\]]+/gi,
+    ];
+    
+    for (const pattern of urlPatterns) {
+      const matches = content.match(pattern);
+      if (matches) {
+        urls.push(...matches);
+      }
+    }
+  }
+  
+  // Check for dangerous URLs using enterprise IP validation
+  const dangerousUrls = urls.filter(url => {
+    try {
+      // First check if URL contains an IP address
+      const ipValidation = IPValidator.validateURLHost(url);
+      if (ipValidation) {
+        // URL contains an IP - check if it's safe
+        return !ipValidation.allowedForSSRF;
+      }
+      
+      // For domain names, check for suspicious patterns
+      const lowercaseUrl = url.toLowerCase();
+      return lowercaseUrl.includes('localhost') ||
+             lowercaseUrl.includes('127.0.0.1') ||
+             lowercaseUrl.includes('0.0.0.0') ||
+             lowercaseUrl.includes('::1');
+    } catch {
+      // If validation fails, consider it dangerous
+      return true;
+    }
+  });
+  
+  return {
+    hasSSRF: dangerousUrls.length > 0,
+    urls: dangerousUrls
+  };
+}
+
+// Extract metadata regions from image buffer based on format
+function extractMetadataRegions(buffer: Buffer): Array<{ start: number; end: number }> {
+  const regions: Array<{ start: number; end: number }> = [];
+  
+  // JPEG EXIF data starts after SOI marker (0xFFD8)
+  if (buffer.length >= 4 && buffer[0] === 0xFF && buffer[1] === 0xD8) {
+    // Look for EXIF APP1 marker (0xFFE1)
+    for (let i = 2; i < buffer.length - 4; i++) {
+      if (buffer[i] === 0xFF && buffer[i + 1] === 0xE1) {
+        const segmentLength = (buffer[i + 2] << 8) | buffer[i + 3];
+        regions.push({ start: i + 4, end: i + 4 + segmentLength });
+        i += segmentLength + 2;
+      }
+    }
+  }
+  
+  // PNG metadata chunks (after PNG signature)
+  if (buffer.length >= 8 && buffer.toString('ascii', 0, 8) === '\x89PNG\r\n\x1a\n') {
+    let offset = 8;
+    while (offset < buffer.length - 8) {
+      const chunkLength = buffer.readUInt32BE(offset);
+      const chunkType = buffer.toString('ascii', offset + 4, offset + 8);
+      
+      // Only scan text chunks and other metadata
+      if (['tEXt', 'zTXt', 'iTXt', 'eXIf', 'pHYs', 'tIME'].includes(chunkType)) {
+        regions.push({ start: offset + 8, end: offset + 8 + chunkLength });
+      }
+      
+      offset += 12 + chunkLength; // 4 bytes length + 4 bytes type + data + 4 bytes CRC
+    }
+  }
+  
+  // If no specific metadata regions found, scan first 4KB only
+  if (regions.length === 0) {
+    regions.push({ start: 0, end: Math.min(4096, buffer.length) });
+  }
+  
+  return regions;
+}
+
+// Enhanced metadata analysis
+function analyzeImageMetadata(metadata: any): { suspicious: boolean; issues: string[] } {
+  const issues: string[] = [];
+  
+  // Check for excessive metadata size
+  if (metadata.exif && Object.keys(metadata.exif).length > 50) {
+    issues.push('Excessive EXIF metadata entries');
+  }
+  
+  // Check for suspicious metadata fields
+  if (metadata.exif) {
+    const suspiciousFields = ['UserComment', 'ImageDescription', 'Software', 'Copyright'];
+    for (const field of suspiciousFields) {
+      if (metadata.exif[field] && typeof metadata.exif[field] === 'string') {
+        const value = metadata.exif[field].toLowerCase();
+        if (value.includes('<script') || value.includes('javascript:') || 
+            value.includes('http://') || value.includes('https://')) {
+          issues.push(`Suspicious content in ${field} metadata`);
+        }
+      }
+    }
+  }
+  
+  return {
+    suspicious: issues.length > 0,
+    issues
+  };
+}
+
+// Secure file validation with comprehensive security checks
 async function validateAndProcessImage(file: File, userId?: string, request?: NextRequest): Promise<Buffer> {
   // Size check
   if (file.size > MAX_FILE_SIZE) {
@@ -101,6 +286,40 @@ async function validateAndProcessImage(file: File, userId?: string, request?: Ne
   
   const buffer = Buffer.from(await file.arrayBuffer());
   
+  // Advanced polyglot file detection
+  const polyglotCheck = detectPolyglotFile(buffer);
+  if (polyglotCheck.isPolyglot) {
+    if (userId) {
+      await EnhancedSecurityLogger.getInstance().logUpload('validation_failed', userId, {
+        reason: 'polyglot_file_detected',
+        evidence: polyglotCheck.evidence,
+        fileName: file.name,
+        fileSize: buffer.length
+      }, {
+        ip: request?.headers.get('x-forwarded-for') || undefined,
+        userAgent: request?.headers.get('user-agent') || undefined
+      });
+    }
+    throw new Error('Suspicious file content detected. File may contain malicious code.');
+  }
+  
+  // SSRF prevention
+  const ssrfCheck = checkForSSRFVectors(buffer);
+  if (ssrfCheck.hasSSRF) {
+    if (userId) {
+      await EnhancedSecurityLogger.getInstance().logCritical('ssrf_attempt_detected', {
+        suspiciousUrls: ssrfCheck.urls,
+        fileName: file.name,
+        fileSize: buffer.length
+      }, {
+        ip: request?.headers.get('x-forwarded-for') || undefined,
+        userAgent: request?.headers.get('user-agent') || undefined,
+        userId
+      });
+    }
+    throw new Error('File contains suspicious network references');
+  }
+
   // Magic number validation
   const fileType = await fileTypeFromBuffer(buffer);
   if (!fileType || !ALLOWED_MIME_TYPES.includes(fileType.mime)) {
@@ -153,6 +372,25 @@ async function validateAndProcessImage(file: File, userId?: string, request?: Ne
         });
       }
       throw new Error('Suspicious image compression detected');
+    }
+    
+    // Enhanced metadata analysis
+    const metadataAnalysis = analyzeImageMetadata(metadata);
+    if (metadataAnalysis.suspicious) {
+      if (userId) {
+        await securityLogger.log({
+          type: SecurityEventType.MALICIOUS_METADATA,
+          userId,
+          userAgent: request?.headers.get('user-agent') || undefined,
+          ip: request?.headers.get('x-forwarded-for') || undefined,
+          details: { 
+            issues: metadataAnalysis.issues,
+            fileName: file.name 
+          },
+          severity: 'medium'
+        });
+      }
+      throw new Error('Suspicious metadata detected in image file');
     }
     
     // Resize if needed and strip metadata
@@ -300,17 +538,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Log successful upload
-    securityLogger.log({
-      type: SecurityEventType.AVATAR_UPLOAD_SUCCESS,
-      userId,
-      userAgent: request.headers.get('user-agent') || undefined,
+    await EnhancedSecurityLogger.getInstance().logUpload('upload_success', userId, {
+      filename,
+      fileSize: processedBuffer.length,
+      originalSize: file.size,
+      compressionRatio: file.size === 0 ? 'N/A' : (Math.max(0, ((file.size - processedBuffer.length) / file.size) * 100)).toFixed(2) + '%'
+    }, {
       ip: request.headers.get('x-forwarded-for') || undefined,
-      details: { 
-        filename,
-        fileSize: processedBuffer.length,
-        originalSize: file.size 
-      },
-      severity: 'low'
+      userAgent: request.headers.get('user-agent') || undefined
     });
 
     return createSecureUploadResponse({ 
@@ -323,13 +558,12 @@ export async function POST(request: NextRequest) {
     // Log failed upload attempt
     const userId = await getUserFromToken();
     if (userId) {
-      securityLogger.log({
-        type: SecurityEventType.AVATAR_UPLOAD_FAILED,
-        userId,
-        userAgent: request.headers.get('user-agent') || undefined,
+      await EnhancedSecurityLogger.getInstance().logUpload('validation_failed', userId, {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stage: 'processing'
+      }, {
         ip: request.headers.get('x-forwarded-for') || undefined,
-        details: { error: error instanceof Error ? error.message : 'Unknown error' },
-        severity: 'medium'
+        userAgent: request.headers.get('user-agent') || undefined
       });
     }
     
