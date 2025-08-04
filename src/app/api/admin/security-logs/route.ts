@@ -35,11 +35,16 @@ async function getUserById(userId: string) {
   }
 }
 
-// Helper function to check if user is admin (for template purposes)
+// Helper function to check if user is admin using database role system
 function isAdmin(user: { email: string, role?: string } | null): boolean {
   if (!user) return false;
   
-  // Use environment variable for admin emails, or implement proper role system
+  // Enforce role-based access control using the role property
+  if (user.role === "admin") {
+    return true;
+  }
+  
+  // Fallback: Use environment variable for admin emails (legacy support)
   const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
   const adminEmails = adminEmailsEnv.split(',').map(email => email.trim()).filter(email => email.length > 0);
   return adminEmails.includes(user.email);

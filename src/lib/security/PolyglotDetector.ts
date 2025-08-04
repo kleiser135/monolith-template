@@ -4,9 +4,6 @@
  */
 
 import { JSDOM } from 'jsdom';
-// DOMPurify will be used in future enhancements for content sanitization
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import DOMPurify from 'isomorphic-dompurify';
 
 interface PolyglotEvidence {
   type: string;
