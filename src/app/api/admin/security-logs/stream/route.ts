@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import { EnhancedSecurityLogger } from "@/lib/security/EnhancedSecurityLogger";
 
 interface JwtPayload {
   userId: string;
@@ -68,26 +69,20 @@ export async function GET(_req: NextRequest) {
     // Create a readable stream for SSE
     const stream = new ReadableStream({
       start(controller) {
-        let lastEventTimestamp: string | null = null;
+        // Future enhancement: track last event timestamp for efficient updates
+        const _lastEventTimestamp: string | null = null;
         
         // Send initial data
         const sendEvents = async () => {
           try {
-            const events = await prisma.securityLog.findMany({
-              orderBy: { timestamp: 'desc' },
-              take: 50,
-              include: {
-                user: {
-                  select: { email: true }
-                }
-              }
-            });
+            // Use enhanced security logger metrics for streaming
+            const logger = EnhancedSecurityLogger.getInstance();
+            const metrics = logger.getMetrics();
 
             const eventData = {
-              events: events.map(event => ({
-                ...event,
-                details: JSON.parse(event.details || '{}')
-              }))
+              metrics,
+              timestamp: new Date().toISOString(),
+              status: 'active'
             };
 
             controller.enqueue(`data: ${JSON.stringify(eventData)}\n\n`);
