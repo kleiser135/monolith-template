@@ -89,8 +89,9 @@ function detectPolyglotFile(buffer: Buffer): { isPolyglot: boolean; evidence: st
   // Check for common polyglot signatures
   const fileStart = buffer.subarray(0, 1024).toString('hex');
   
-  // Convert buffer to binary string and lowercase once, reuse for all checks below
-  const fileContentLower = buffer.toString('binary', 0, Math.min(buffer.length, 8192)).toLowerCase();
+  // Limit analysis to smaller portions for better performance on large files
+  const maxAnalysisSize = Math.min(buffer.length, 4096); // Reduced from 8192
+  const fileContentLower = buffer.toString('binary', 0, maxAnalysisSize).toLowerCase();
   
   // HTML/JS injection in images
   if (fileContentLower.includes('<script') || fileContentLower.includes('javascript:') || 

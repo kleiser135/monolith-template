@@ -36,10 +36,12 @@ async function getUserById(userId: string) {
 }
 
 // Helper function to check if user is admin (for template purposes)
-function isAdmin(user: { email: string } | null): boolean {
+function isAdmin(user: { email: string, role?: string } | null): boolean {
   if (!user) return false;
-  // For template: admin emails or implement proper role system
-  const adminEmails = ['admin@example.com', 'root@localhost'];
+  
+  // Use environment variable for admin emails, or implement proper role system
+  const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
+  const adminEmails = adminEmailsEnv.split(',').map(email => email.trim()).filter(email => email.length > 0);
   return adminEmails.includes(user.email);
 }
 
