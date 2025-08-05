@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: 'src/test/setup.ts',
+    setupFiles: ['src/test/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -18,10 +18,17 @@ export default defineConfig({
         branches: 80,
       },
       exclude: [
-        'node_modules/',
-        'src/test/',
+        'node_modules/**',
+        'src/test/**',
         '**/*.d.ts',
-        'analyze-coverage.js'
+        'analyze-coverage.js',
+        '.next/**',
+        'coverage/**',
+        'cypress/**',
+        'playwright-report/**',
+        'test-results/**',
+        '**/dist/**',
+        '**/build/**'
       ]
     }
   },
