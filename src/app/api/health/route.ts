@@ -52,9 +52,8 @@ export async function GET() {
  */
 async function checkDatabase() {
   try {
-    // Import Prisma client dynamically to avoid issues if DB is not available
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
+    // Use the global prisma instance to allow for proper mocking in tests
+    const { prisma } = await import('@/lib/prisma')
     
     // Simple query to test connection
     await prisma.$executeRaw`SELECT 1`
