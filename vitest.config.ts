@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import path from 'path'
@@ -15,7 +16,13 @@ export default defineConfig({
         lines: 80,
         functions: 80,
         branches: 80,
-      }
+      },
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        '**/*.d.ts',
+        'analyze-coverage.js'
+      ]
     }
   },
   resolve: {
@@ -23,4 +30,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  esbuild: {
+    target: 'node14'
+  }
 }) 

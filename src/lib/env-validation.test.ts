@@ -15,7 +15,7 @@ describe('Environment Validation', () => {
     });
 
     // Mock console methods
-    mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    _mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     
     // Reset environment variables
     process.env = { ...originalEnv };
