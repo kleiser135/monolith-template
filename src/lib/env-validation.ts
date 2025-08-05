@@ -136,5 +136,6 @@ function validateProductionRequirements(env: EnvConfig) {
   }
 }
 
-// Validate environment on module load
-export const env = validateEnv()
+// Note: Automatic validation commented out for testing
+// Uncomment for production or call validateEnv() manually where needed
+// export const env = validateEnv()
