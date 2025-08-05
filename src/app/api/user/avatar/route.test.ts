@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST, DELETE } from './route';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
@@ -8,6 +8,7 @@ import { securityLogger } from '@/lib/security-logger';
 import { PolyglotDetector } from '@/lib/security/PolyglotDetector';
 import { IPValidator } from '@/lib/security/IPValidator';
 import { EnhancedSecurityLogger } from '@/lib/security/EnhancedSecurityLogger';
+import { join } from 'path';
 import { fileTypeFromBuffer } from 'file-type';
 import sharp from 'sharp';
 import { writeFile, unlink, mkdir } from 'fs/promises';
@@ -44,9 +45,6 @@ vi.mock('@/middleware/security-headers', () => ({
     json: vi.fn().mockResolvedValue({ data, message }),
     status: 200
   }))
-}));
-vi.mock('next/headers', () => ({
-  cookies: vi.fn()
 }));
 
 const createMockFile = (name: string, size: number, type: string, content?: string) => {
@@ -419,7 +417,6 @@ describe('Avatar Upload API', () => {
       vi.mocked(prisma.user.update).mockResolvedValue({ ...userWithAvatar, avatar: 'uploads/avatars/new-avatar.jpg' });
       
       // Mock realpath to return a path within uploads directory
-      const { join } = require('path');
       const expectedPath = join(process.cwd(), 'public', 'uploads', 'avatars', 'old-avatar.jpg');
       vi.mocked(realpath).mockResolvedValue(expectedPath);
       
@@ -545,7 +542,6 @@ describe('Avatar Upload API', () => {
       vi.mocked(prisma.user.update).mockResolvedValue({ ...userWithAvatar, avatar: null });
       
       // Mock realpath to return a path within uploads directory
-      const { join } = require('path');
       const expectedPath = join(process.cwd(), 'public', 'uploads', 'avatars', 'avatar.jpg');
       vi.mocked(realpath).mockResolvedValue(expectedPath);
       

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { middleware } from './middleware';
 
 // Mock environment variables
-const mockEnv = (env: Record<string, string>) => {
+const _mockEnv = (env: Record<string, string>) => {
   vi.stubEnv('NODE_ENV', env.NODE_ENV || 'test');
   vi.stubEnv('JWT_SECRET', env.JWT_SECRET || 'test-secret');
 };
