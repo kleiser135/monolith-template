@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { PolyglotDetector } from './PolyglotDetector';
 
 describe('PolyglotDetector', () => {
@@ -365,7 +365,6 @@ describe('PolyglotDetector', () => {
 
     it('should handle analysis errors gracefully', () => {
       // Mock JSDOM to throw an error
-      const originalJSDOM = require('jsdom').JSDOM;
       const mockJSDOM = vi.fn().mockImplementation(() => {
         throw new Error('DOM parsing failed');
       });

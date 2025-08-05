@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { SecurityEventType, SecurityEvent, securityLogger } from './security-logger';
+import { SecurityEventType, securityLogger } from './security-logger';
 import { prisma } from './prisma';
 
 // Mock the prisma module
@@ -48,7 +48,7 @@ describe('SecurityLogger', () => {
 
     it('should log to console in development environment', async () => {
       // Mock process.env
-      const originalEnv = process.env.NODE_ENV;
+      const _originalEnv = process.env.NODE_ENV;
       vi.stubEnv('NODE_ENV', 'development');
 
       const testEvent = {

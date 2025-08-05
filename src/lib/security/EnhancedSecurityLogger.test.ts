@@ -7,7 +7,7 @@ vi.mock('fs/promises');
 const mockFs = vi.mocked(fs);
 
 // Mock console methods
-const consoleSpy = {
+const _consoleSpy = {
   log: vi.spyOn(console, 'log').mockImplementation(() => {}),
   warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
   error: vi.spyOn(console, 'error').mockImplementation(() => {}),
@@ -267,8 +267,8 @@ describe('EnhancedSecurityLogger', () => {
       writeLogSpy.mockRejectedValue(new Error('Logging failed'));
 
       // First few calls should fail and trigger circuit breaker
-      const result1 = await logger.logSecurityEvent('info', 'system', 'test1', {});
-      const result2 = await logger.logSecurityEvent('info', 'system', 'test2', {});
+      const _result1 = await logger.logSecurityEvent('info', 'system', 'test1', {});
+      const _result2 = await logger.logSecurityEvent('info', 'system', 'test2', {});
       const result3 = await logger.logSecurityEvent('info', 'system', 'test3', {});
 
       // Circuit should be open now, so subsequent calls return false immediately

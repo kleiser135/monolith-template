@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 describe('Environment Validation', () => {
   const originalEnv = process.env;
   let mockExit: any;
-  let mockConsoleError: any;
+  let _mockConsoleError: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
