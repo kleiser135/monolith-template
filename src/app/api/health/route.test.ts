@@ -1,6 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { GET } from './route'
 import { prismaMock } from '@/test/setup'
+import fs from 'fs'
+import path from 'path'
 
 // Mock the security headers function
 vi.mock('@/lib/security-headers', () => ({
@@ -14,6 +16,8 @@ vi.mock('@/lib/prisma', () => ({
 }))
 
 describe('/api/health', () => {
+  let testUploadsDir: string
+
   beforeEach(() => {
     vi.clearAllMocks()
     // Reset environment to our global test setup defaults
@@ -22,7 +26,20 @@ describe('/api/health', () => {
     vi.stubEnv('DATABASE_URL', 'postgresql://test:test@localhost:5432/test')
     vi.stubEnv('JWT_SECRET', 'test-jwt-secret-that-is-long-enough-for-validation')
     vi.stubEnv('NEXTAUTH_SECRET', 'test-nextauth-secret')
-    vi.stubEnv('UPLOADS_DIR', './public/uploads')
+    
+    // Create a test uploads directory
+    testUploadsDir = path.join(process.cwd(), 'test-uploads')
+    if (!fs.existsSync(testUploadsDir)) {
+      fs.mkdirSync(testUploadsDir, { recursive: true })
+    }
+    vi.stubEnv('UPLOADS_DIR', testUploadsDir)
+  })
+
+  afterEach(() => {
+    // Clean up test uploads directory
+    if (fs.existsSync(testUploadsDir)) {
+      fs.rmSync(testUploadsDir, { recursive: true, force: true })
+    }
   })
 
   it('should return healthy status when all checks pass', async () => {
