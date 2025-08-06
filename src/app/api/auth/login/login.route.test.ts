@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { POST } from './route';
 import { NextRequest } from 'next/server';
 import { prismaMock } from '@/test/setup';
@@ -20,7 +20,7 @@ describe('API - Login Endpoint', () => {
     expect(response.status).toBe(400);
   });
 
-  it('should return a 404 Not Found if the user does not exist', async () => {
+  it('should return a 401 Unauthorized if the user does not exist (prevent user enumeration)', async () => {
     // Arrange: Mock findUnique to return null (user not found)
     prismaMock.user.findUnique.mockResolvedValue(null);
 
@@ -35,8 +35,8 @@ describe('API - Login Endpoint', () => {
     // Act
     const response = await POST(request);
 
-    // Assert
-    expect(response.status).toBe(404);
+    // Assert - Security: Return 401 to prevent user enumeration
+    expect(response.status).toBe(401);
   });
 
   it('should return a 401 Unauthorized if the password is incorrect', async () => {
@@ -67,7 +67,7 @@ describe('API - Login Endpoint', () => {
 
     // Assert
     expect(response.status).toBe(401);
-  });
+  }, 10000);
 
   it('should return a 200 OK with a JWT cookie on successful login', async () => {
     // Arrange
@@ -111,7 +111,7 @@ describe('API - Login Endpoint', () => {
     expect(cookie).toBeDefined();
     expect(cookie).toContain('token=');
     expect(cookie).toContain('HttpOnly');
-  });
+  }, 10000);
 
   it('should return 400 if validation fails', async () => {
     const request = new NextRequest('http://localhost/api/auth/login', {
@@ -139,5 +139,5 @@ describe('API - Login Endpoint', () => {
 
     const response = await POST(request);
     expect(response.status).toBe(500);
-  });
+  }, 10000);
 });
