@@ -7,6 +7,12 @@ vi.mock('@/lib/security-headers', () => ({
   addApiSecurityHeaders: vi.fn((response) => response),
 }))
 
+// Explicitly mock the prisma import for dynamic imports in CI environments
+vi.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  prisma: prismaMock,
+}))
+
 describe('/api/health', () => {
   beforeEach(() => {
     vi.clearAllMocks()
