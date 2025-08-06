@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { writeFile, unlink, mkdir } from 'fs/promises';
-import { join, normalize, isAbsolute } from 'path';
+import { join, normalize, isAbsolute, sep } from 'path';
 import { randomBytes } from 'crypto';
 import { fileTypeFromBuffer } from 'file-type';
 import sharp from 'sharp';
@@ -82,7 +82,8 @@ function isValidAvatarPath(userPath: string, userId?: string): boolean {
   }
   
   // Must be in uploads/avatars directory
-  return normalizedPath.startsWith('uploads/avatars/');
+  const expectedPrefix = join('uploads', 'avatars') + sep;
+  return normalizedPath.startsWith(expectedPrefix);
 }
 
 // Enhanced polyglot detection using enterprise security module
