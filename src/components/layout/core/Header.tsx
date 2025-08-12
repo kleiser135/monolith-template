@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { AppHeader } from "./headers";
+import { AppHeader } from "../headers";
 
 export async function Header() {
   const cookieStore = await cookies();

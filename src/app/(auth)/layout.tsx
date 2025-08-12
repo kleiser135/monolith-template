@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
-import { SharedBackground } from "@/components/layout/SharedBackground";
+import { SharedBackground } from '@/components/layout/animations/SharedBackground';
 import { AnimatedAuthContainer } from "@/components/layout/AnimatedAuthContainer";
 import { usePathname } from "next/navigation";
 

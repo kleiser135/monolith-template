@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { writeFile, unlink, mkdir } from 'fs/promises';
-import { join, normalize, isAbsolute } from 'path';
+import { join, normalize, isAbsolute, sep } from 'path';
 import { randomBytes } from 'crypto';
 import { fileTypeFromBuffer } from 'file-type';
 import sharp from 'sharp';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/database/prisma';
 import { realpath } from 'fs/promises';
 import { existsSync } from 'fs';
-import { checkRateLimit } from '@/lib/rate-limiting';
-import { securityLogger, SecurityEventType } from '@/lib/security-logger';
+import { checkRateLimit } from '@/lib/api/rate-limiting';
+import { securityLogger, SecurityEventType } from '@/lib/security/security-logger';
 import { createSecureUploadResponse } from '@/middleware/security-headers';
 import { PolyglotDetector } from '@/lib/security/PolyglotDetector';
 import { IPValidator } from '@/lib/security/IPValidator';
@@ -82,7 +82,8 @@ function isValidAvatarPath(userPath: string, userId?: string): boolean {
   }
   
   // Must be in uploads/avatars directory
-  return normalizedPath.startsWith('uploads/avatars/');
+  const expectedPrefix = join('uploads', 'avatars') + sep;
+  return normalizedPath.startsWith(expectedPrefix);
 }
 
 // Enhanced polyglot detection using enterprise security module

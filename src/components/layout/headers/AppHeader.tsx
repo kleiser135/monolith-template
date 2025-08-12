@@ -3,7 +3,7 @@
 import { User, Settings } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button/button";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { LogoutButton } from "@/components/features/auth/logout-button/LogoutButton";
 import {
   DropdownMenu,

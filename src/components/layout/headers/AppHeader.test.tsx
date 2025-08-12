@@ -5,7 +5,7 @@ import { vi, describe, beforeEach, it, expect } from "vitest";
 import { AppHeader } from "./AppHeader";
 
 // Mock child components that have their own complex logic or dependencies
-vi.mock("@/components/theme-toggle", () => ({
+vi.mock("@/components/theme/theme-toggle", () => ({
   ThemeToggle: () => <div data-testid="theme-toggle-mock" />,
 }));
 

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import ProfilePage from './page';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/database/prisma';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { User } from '@prisma/client';

@@ -4,7 +4,7 @@ import { ChangePasswordForm } from './ChangePasswordForm';
 import { toast } from 'sonner';
 
 // Mock the changePassword action
-vi.mock('@/lib/actions', () => ({
+vi.mock('@/lib/api/actions', () => ({
   changePassword: vi.fn(),
 }));
 
@@ -17,7 +17,7 @@ vi.mock('sonner', () => ({
 }));
 
 // Import the mocked changePassword function
-import { changePassword } from '@/lib/actions';
+import { changePassword } from '@/lib/api/actions';
 const mockChangePassword = vi.mocked(changePassword);
 
 describe('ChangePasswordForm', () => {

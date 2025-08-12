@@ -1,8 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { POST } from './route'; 
 import { NextRequest } from 'next/server';
 import { prismaMock } from '@/test/setup';
-import { hash } from 'bcrypt';
+
+// Mock bcrypt
+vi.mock('bcrypt', () => ({
+  hash: vi.fn(),
+}));
 
 describe('POST /api/auth/forgot-password', () => {
   it('should return 200 even if user is not found to prevent email enumeration', async () => {
@@ -38,11 +42,13 @@ describe('POST /api/auth/forgot-password', () => {
     const user = {
       id: '1',
       email: 'test@example.com',
-      password: await hash('password123', 10),
+      password: 'hashed-password123',
       createdAt: new Date(),
       updatedAt: new Date(),
       emailVerified: new Date(),
-      name: 'Test User'
+      name: 'Test User',
+      avatar: null,
+      role: 'user'
     };
     prismaMock.user.findUnique.mockResolvedValue(user);
     prismaMock.passwordResetToken.create.mockResolvedValue({
@@ -72,11 +78,13 @@ describe('POST /api/auth/forgot-password', () => {
     const user = {
       id: '1',
       email: 'test@example.com',
-      password: await hash('password123', 10),
+      password: 'hashed-password123',
       createdAt: new Date(),
       updatedAt: new Date(),
       emailVerified: new Date(),
-      name: 'Test User'
+      name: 'Test User',
+      avatar: null,
+      role: 'user'
     };
     const existingToken = {
         id: 'token123',

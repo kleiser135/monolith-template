@@ -19,9 +19,9 @@ import { Input } from "@/components/ui/input/input";
 import { toast } from "sonner"
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
-import apiClient from "@/lib/api-client"
+import apiClient from '@/lib/api/api-client'
 import { useRouter } from "next/navigation"
-import { resetPasswordSchema } from "@/lib/validators";
+import { resetPasswordSchema } from '@/lib/validation/validators';
 
 export function ResetPasswordForm() {
   const router = useRouter();

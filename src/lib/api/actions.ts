@@ -1,13 +1,13 @@
 'use server';
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/database/prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import {
   loginSchema,
   signupSchema,
   changePasswordSchema,
-} from "@/lib/validators";
+} from "@/lib/validation/validators";
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 import { revalidatePath } from 'next/cache';

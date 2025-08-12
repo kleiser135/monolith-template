@@ -1,9 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { POST } from './route';
 import { NextRequest } from 'next/server';
 import { prismaMock } from '@/test/setup';
 import crypto from 'crypto';
-import { hash } from 'bcrypt';
+
+// Mock bcrypt
+vi.mock('bcrypt', () => ({
+  hash: vi.fn(),
+}));
 
 describe('POST /api/auth/reset-password', () => {
   it('should return 400 if token is invalid or expired', async () => {
@@ -45,11 +49,13 @@ describe('POST /api/auth/reset-password', () => {
     const user = {
       id: 'user-1',
       email: 'test@example.com',
-      password: await hash('password123', 10),
+      password: 'hashed-password123',
       createdAt: new Date(),
       updatedAt: new Date(),
       emailVerified: new Date(),
-      name: 'Test User'
+      name: 'Test User',
+      avatar: null,
+      role: 'user'
     };
     const resetToken = {
       id: 'token-1',

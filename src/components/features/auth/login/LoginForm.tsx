@@ -13,11 +13,11 @@ import {
   FormMessage,
 } from "@/components/ui/form/form";
 import { Input } from "@/components/ui/input/input";
-import { loginSchema } from "@/lib/validators";
+import { loginSchema } from '@/lib/validation/validators';
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/actions";
+import { login } from '@/lib/api/actions';
 import { motion } from "framer-motion";
 
 type LoginFormValues = z.infer<typeof loginSchema>;

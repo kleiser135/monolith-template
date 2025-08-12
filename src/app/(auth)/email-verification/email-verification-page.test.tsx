@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useSearchParams, ReadonlyURLSearchParams } from 'next/navigation';
 import EmailVerificationPage from './page';
-import apiClient from '@/lib/api-client';
+import apiClient from '@/lib/api/api-client';
 
 // Mock the next/navigation module
 vi.mock('next/navigation', async () => {
@@ -14,7 +14,11 @@ vi.mock('next/navigation', async () => {
 });
 
 // Mock the api-client
-vi.mock('@/lib/api-client');
+vi.mock('@/lib/api/api-client', () => ({
+  default: {
+    post: vi.fn(),
+  },
+}));
 
 describe('Email Verification Page', () => {
   const mockUseSearchParams = vi.mocked(useSearchParams);
@@ -35,7 +39,8 @@ describe('Email Verification Page', () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams("token=good-token") as ReadonlyURLSearchParams);
 
     // Mock the API call to be successful
-    vi.mocked(apiClient.post).mockResolvedValue({ message: 'Email verified successfully!' });
+    const mockPost = apiClient.post as any;
+    mockPost.mockResolvedValue({ message: 'Email verified successfully!' });
 
     // Act
     render(<EmailVerificationPage />);
@@ -51,7 +56,8 @@ describe('Email Verification Page', () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams("token=bad-token") as ReadonlyURLSearchParams);
 
     // Mock the API call to fail
-    vi.mocked(apiClient.post).mockRejectedValue(new Error('Invalid or expired token.'));
+    const mockPost = apiClient.post as any;
+    mockPost.mockRejectedValue(new Error('Invalid or expired token.'));
 
     // Act
     render(<EmailVerificationPage />);

@@ -17,8 +17,8 @@ import {
 } from "@/components/ui/form/form"
 import { Input } from "@/components/ui/input/input"
 import { toast } from "sonner"
-import { forgotPasswordSchema } from "@/lib/validators"
-import apiClient from "@/lib/api-client"
+import { forgotPasswordSchema } from '@/lib/validation/validators'
+import apiClient from '@/lib/api/api-client'
 import { useState } from "react"
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
