@@ -5,6 +5,18 @@ import dotenv from 'dotenv'
 import { mockDeep, mockReset } from 'vitest-mock-extended'
 import { PrismaClient } from '@prisma/client'
 
+// Polyfill for TextEncoder/TextDecoder if not available (fixes esbuild CI issue)
+if (typeof globalThis.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util')
+  globalThis.TextEncoder = TextEncoder
+  globalThis.TextDecoder = TextDecoder
+}
+
+// Additional polyfills for Node.js environment
+if (typeof globalThis.crypto === 'undefined') {
+  globalThis.crypto = require('crypto').webcrypto
+}
+
 dotenv.config({ path: '.env' })
 
 // Set test environment variables before any imports
@@ -61,7 +73,7 @@ vi.mock('bcryptjs', () => ({
 vi.mock('bcrypt', () => {
   const mockCompare = vi.fn().mockResolvedValue(false); // Default to false
   const mockHash = vi.fn().mockResolvedValue('$2b$10$mocked-hash');
-  
+
   return {
     default: {
       compare: mockCompare,
@@ -124,4 +136,18 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-}); 
+})
+
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
+
+// Mock IntersectionObserver
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
