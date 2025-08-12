@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { validateCSRF, generateCSRFToken, setCSRFCookie } from '@/lib/csrf';
-import { checkGlobalRateLimit } from '@/lib/global-rate-limiting';
+import { validateCSRF, generateCSRFToken, setCSRFCookie } from '@/lib/security/csrf';
+import { checkGlobalRateLimit } from '@/lib/api/global-rate-limiting';
 
 /**
  * Enhanced middleware with security features:

@@ -13,7 +13,7 @@ vi.mock('jsonwebtoken', () => ({
   }
 }))
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/database/prisma', () => ({
   prisma: {
     user: {
       findUnique: vi.fn()
@@ -29,7 +29,7 @@ vi.mock('@/lib/security/EnhancedSecurityLogger', () => ({
 
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/database/prisma'
 import { EnhancedSecurityLogger } from '@/lib/security/EnhancedSecurityLogger'
 
 const createMockCookies = (token?: string) => ({
@@ -76,8 +76,8 @@ describe('Security Logs Stream API', () => {
   describe('GET /api/admin/security-logs/stream', () => {
     it('should return SSE stream for admin user', async () => {
       // Set up admin user
-      const originalEnv = process.env.ADMIN_EMAILS
-      process.env.ADMIN_EMAILS = 'admin@test.com'
+
+      vi.stubEnv('ADMIN_EMAILS', 'admin@test.com')
       
       const request = {} as NextRequest
       const response = await GET(request)
@@ -88,7 +88,7 @@ describe('Security Logs Stream API', () => {
       expect(response.headers.get('Connection')).toBe('keep-alive')
       
       // Restore original env
-      process.env.ADMIN_EMAILS = originalEnv
+
     })
 
     it('should return 401 for unauthenticated request', async () => {
@@ -108,8 +108,8 @@ describe('Security Logs Stream API', () => {
         email: 'user@test.com' // Not in admin emails
       } as any)
       
-      const originalEnv = process.env.ADMIN_EMAILS
-      process.env.ADMIN_EMAILS = 'admin@test.com'
+
+      vi.stubEnv('ADMIN_EMAILS', 'admin@test.com')
       
       const request = {} as NextRequest
       const response = await GET(request)
@@ -119,7 +119,7 @@ describe('Security Logs Stream API', () => {
       expect(data.error).toBe('Forbidden: Admins only')
       
       // Restore original env
-      process.env.ADMIN_EMAILS = originalEnv
+
     })
   })
 })

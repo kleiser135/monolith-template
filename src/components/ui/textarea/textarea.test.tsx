@@ -2,7 +2,6 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import * as React from 'react'
 import { Textarea } from './textarea'
-import { createRef } from 'react'
 
 // Mock @/lib/utils
 vi.mock('@/lib/utils', () => ({

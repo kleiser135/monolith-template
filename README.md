@@ -59,16 +59,50 @@ Visit [http://localhost:3000](http://localhost:3000) to see your application.
 src/
 ├── app/                    # Next.js App Router
 │   ├── (app)/             # Authenticated application routes
+│   │   └── dashboard/     # Dashboard and user features
 │   ├── (auth)/            # Authentication routes with shared layout
+│   │   ├── login/         # Login page
+│   │   ├── signup/        # Registration page
+│   │   ├── forgot-password/ # Password reset flow
+│   │   └── ...            # Other auth pages
 │   ├── (public)/          # Public marketing routes
-│   └── api/               # API routes and server actions
+│   │   └── page.tsx       # Landing page
+│   ├── api/               # API routes and server actions
+│   │   ├── auth/          # Authentication endpoints
+│   │   ├── user/          # User management endpoints
+│   │   ├── admin/         # Admin-only endpoints
+│   │   ├── health/        # Health check endpoint
+│   │   └── test/          # Testing utilities (dev only)
+│   ├── globals.css        # Global styles
+│   ├── layout.tsx         # Root layout component
+│   ├── error.tsx          # Global error boundary
+│   ├── loading.tsx        # Global loading UI
+│   └── not-found.tsx      # 404 page
 ├── components/
 │   ├── features/          # Feature-specific components
-│   ├── layout/            # Layout components (headers, footer)
+│   │   ├── auth/          # Authentication components
+│   │   ├── dashboard/     # Dashboard components
+│   │   ├── profile/       # User profile components
+│   │   └── ...            # Other feature directories
+│   ├── layout/            # Layout components
+│   │   ├── core/          # Headers, footers, main layout
+│   │   ├── animations/    # Page transitions, backgrounds
+│   │   ├── headers/       # Specialized header variants
+│   │   └── AnimatedAuthContainer/ # Auth-specific containers
+│   ├── theme/             # Theme providers and toggles
 │   └── ui/                # Reusable UI components
-├── lib/                   # Utilities, actions, validation schemas
+├── lib/                   # Organized utility libraries
+│   ├── auth/              # Authentication utilities
+│   ├── validation/        # Input sanitization, validators
+│   ├── api/               # API clients, server actions, rate limiting
+│   ├── database/          # Prisma configuration
+│   ├── security/          # CSRF, headers, logging, threat detection
+│   ├── ui/                # UI helpers and utilities
+│   └── utils.ts           # General utility functions
 └── test/                  # Test utilities and setup
 ```
+
+The directory structure follows modern React/Next.js best practices with logical grouping by functionality, making the codebase more maintainable and easier to navigate as it scales.
 
 ## 🔐 Authentication & Security
 
@@ -85,15 +119,15 @@ src/
 - **TDD Workflow**: Red-Green-Refactor development cycle with continuous validation
 
 ### Testing Infrastructure
-- **Coverage Achievement**: 81.54% comprehensive code coverage
-- **Test Count**: 431 tests passing across all components and features
+- **Coverage Achievement**: 81.21% comprehensive code coverage
+- **Test Count**: 709 tests passing across all components and features
 - **Performance**: Fast execution with Vite-powered testing
 - **CI/CD Integration**: Automated testing in deployment pipeline
 
 ### Running Tests
 ```bash
-npm test              # Unit tests (431 tests)
-npm run test:coverage # Coverage report (81.54% coverage)
+npm test              # Unit tests (709 tests)
+npm run test:coverage # Coverage report (81.21% coverage)
 npm run e2e           # Cypress E2E tests
 npm run percy         # Visual regression tests
 npm run test:watch    # Watch mode for development
@@ -130,7 +164,7 @@ Context-aware header system with specialized headers:
 - ✅ **Route Groups**: Organized routing with Next.js 13+ route groups
 - ✅ **Security Implementation**: Enterprise-grade security measures and logging
 - ✅ **Production Infrastructure**: Complete monitoring and deployment readiness
-- ✅ **Testing Excellence**: 81.54% code coverage with 431 passing tests
+- ✅ **Testing Excellence**: 81.21% code coverage with 709 passing tests
 
 ## 🚀 Production Deployment
 

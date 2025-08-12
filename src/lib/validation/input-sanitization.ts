@@ -43,6 +43,12 @@ export function sanitizeString(
 
   let sanitized = input;
 
+  // Always remove script/style blocks with their contents before any further processing
+  // This ensures dangerous code is fully stripped even when keeping other tag contents
+  sanitized = sanitized
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '');
+
   // Trim whitespace if configured
   if (config.trimWhitespace) {
     sanitized = sanitized.trim();
@@ -63,14 +69,14 @@ export function sanitizeString(
     sanitized = DOMPurify.sanitize(sanitized, {
       ALLOWED_TAGS: config.allowedTags,
       ALLOWED_ATTR: Object.keys(config.allowedAttributes),
-      KEEP_CONTENT: true
+      KEEP_CONTENT: true,
     });
   } else {
-    // Strip all HTML tags for plain text
+    // Strip all HTML tags for plain text, keeping user-visible text for non-script/style tags
     sanitized = DOMPurify.sanitize(sanitized, {
       ALLOWED_TAGS: [],
       ALLOWED_ATTR: [],
-      KEEP_CONTENT: true
+      KEEP_CONTENT: true,
     });
   }
 
@@ -195,8 +201,10 @@ export function sanitizeObject(
     const sanitized: any = {};
     
     for (const [key, value] of Object.entries(obj)) {
-      // Sanitize the key itself
-      const sanitizedKey = sanitizeString(key, { 
+      // Sanitize the key itself (preserve literal tag names like '<key>' as 'key')
+      const tagNameExtractor = /<\/?\s*([a-z0-9\-:_]+)[^>]*>/gi;
+      const replaced = key.replace(tagNameExtractor, '$1');
+      const sanitizedKey = sanitizeString(replaced, { 
         ...defaultSanitizationConfig, 
         maxLength: 100 
       });

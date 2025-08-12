@@ -47,6 +47,8 @@ export function SharedBackground({ children, variant = 'landing' }: SharedBackgr
     <div 
       className={backgroundConfig.className}
       style={variant === 'auth' ? { backgroundColor: '#0f172a' } : backgroundConfig.style}
+      data-testid="shared-background"
+      data-variant={variant}
     >
       {/* Background gradient layer - for auth variant */}
       {variant === 'auth' && (

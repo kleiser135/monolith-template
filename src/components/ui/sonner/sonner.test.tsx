@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { Toaster } from './sonner';
-import { ThemeProvider } from '@/components/theme-provider';
 import { useTheme } from 'next-themes';
 
 // Mock next-themes
@@ -12,6 +11,13 @@ vi.mock('next-themes', async (importOriginal) => {
     useTheme: vi.fn(),
   };
 });
+
+// Mock ThemeProvider
+vi.mock('@/components/theme/theme-provider', () => ({
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="theme-provider">{children}</div>,
+}));
+
+import { ThemeProvider } from '@/components/theme/theme-provider';
 
 describe('Toaster (Sonner) Component', () => {
   it('renders correctly and respects the theme', () => {

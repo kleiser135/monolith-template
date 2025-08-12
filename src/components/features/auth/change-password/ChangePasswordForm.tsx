@@ -15,8 +15,8 @@ import {
 import { Input } from "@/components/ui/input/input";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { changePassword } from "@/lib/actions";
-import { changePasswordSchema } from "@/lib/validators";
+import { changePassword } from '@/lib/api/actions';
+import { changePasswordSchema } from '@/lib/validation/validators';
 import { Lock, Eye, EyeOff, CheckCircle, Loader2 } from "lucide-react";
 
 type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;

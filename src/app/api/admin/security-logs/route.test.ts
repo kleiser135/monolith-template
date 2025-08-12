@@ -13,14 +13,14 @@ vi.mock('jsonwebtoken', () => ({
   }
 }))
 
-vi.mock('@/lib/security-logger', () => ({
+vi.mock('@/lib/security/security-logger', () => ({
   securityLogger: {
     getEventsByUserFromDatabase: vi.fn(),
     getRecentEventsFromDatabase: vi.fn()
   }
 }))
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/database/prisma', () => ({
   prisma: {
     user: {
       findUnique: vi.fn()
@@ -30,8 +30,8 @@ vi.mock('@/lib/prisma', () => ({
 
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
-import { securityLogger } from '@/lib/security-logger'
-import { prisma } from '@/lib/prisma'
+import { securityLogger } from '@/lib/security/security-logger'
+import { prisma } from '@/lib/database/prisma'
 
 const createMockCookies = (token?: string) => ({
   get: vi.fn().mockReturnValue(token ? { value: token } : null),
@@ -171,8 +171,7 @@ describe('Security Logs API', () => {
     })
 
     it('should allow admin access based on ADMIN_EMAILS env var', async () => {
-      const originalEnv = process.env.ADMIN_EMAILS
-      process.env.ADMIN_EMAILS = 'admin1@test.com,admin2@test.com'
+      vi.stubEnv('ADMIN_EMAILS', 'admin1@test.com,admin2@test.com')
       
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         ...mockUser,
@@ -184,9 +183,6 @@ describe('Security Logs API', () => {
       const response = await GET(request)
       
       expect(response.status).toBe(200)
-      
-      // Restore original env
-      process.env.ADMIN_EMAILS = originalEnv
     })
 
     it('should filter events by userId when provided', async () => {
@@ -277,8 +273,7 @@ describe('Security Logs API', () => {
     })
 
     it('should handle empty ADMIN_EMAILS environment variable', async () => {
-      const originalEnv = process.env.ADMIN_EMAILS
-      process.env.ADMIN_EMAILS = ''
+      vi.stubEnv('ADMIN_EMAILS', '')
       
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         ...mockUser,
@@ -291,13 +286,11 @@ describe('Security Logs API', () => {
       
       expect(response.status).toBe(403)
       
-      // Restore original env
-      process.env.ADMIN_EMAILS = originalEnv
+
     })
 
     it('should trim whitespace from admin emails in environment variable', async () => {
-      const originalEnv = process.env.ADMIN_EMAILS
-      process.env.ADMIN_EMAILS = ' admin1@test.com , admin2@test.com , '
+      vi.stubEnv('ADMIN_EMAILS', ' admin1@test.com , admin2@test.com , ')
       
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         ...mockUser,
@@ -310,8 +303,7 @@ describe('Security Logs API', () => {
       
       expect(response.status).toBe(200)
       
-      // Restore original env
-      process.env.ADMIN_EMAILS = originalEnv
+
     })
   })
 })

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { addApiSecurityHeaders } from '@/lib/security-headers'
+import { addApiSecurityHeaders } from '@/lib/security/security-headers'
+import fs from 'fs'
+import path from 'path'
 
 /**
  * Production health check endpoint
@@ -53,7 +55,7 @@ export async function GET() {
 async function checkDatabase() {
   try {
     // Use the global prisma instance to allow for proper mocking in tests
-    const { prisma } = await import('@/lib/prisma')
+    const { prisma } = await import('@/lib/database/prisma')
     
     // Simple query to test connection
     await prisma.$executeRaw`SELECT 1`
@@ -105,11 +107,6 @@ function checkEnvironment() {
  */
 function checkStorage() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const fs = require('fs')
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const path = require('path')
-    
     const uploadsDir = process.env.UPLOADS_DIR || './public/uploads'
     const absolutePath = path.resolve(uploadsDir)
     

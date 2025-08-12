@@ -18,7 +18,7 @@ import { usePathname } from 'next/navigation'
 import { AppHeader } from '@/components/layout/headers'
 
 // Import the component after mocking
-import { ConditionalHeader } from '@/components/layout/ConditionalHeader'
+import { ConditionalHeader } from '@/components/layout/core/ConditionalHeader'
 
 const mockUsePathname = vi.mocked(usePathname)
 const mockAppHeader = vi.mocked(AppHeader)
