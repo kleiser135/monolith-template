@@ -3,7 +3,7 @@ import { SecurityEventType, securityLogger } from './security-logger';
 import { prisma } from '../database/prisma';
 
 // Mock the prisma module
-vi.mock('./prisma', () => ({
+vi.mock('../database/prisma', () => ({
   prisma: {
     securityLog: {
       create: vi.fn(),
