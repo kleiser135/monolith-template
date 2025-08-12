@@ -3,6 +3,9 @@ import type { NextRequest } from 'next/server';
 import { validateCSRF, generateCSRFToken, setCSRFCookie } from '@/lib/security/csrf';
 import { checkGlobalRateLimit } from '@/lib/api/global-rate-limiting';
 
+// Constants
+const MILLISECONDS_TO_SECONDS = 1000;
+
 /**
  * Enhanced middleware with security features:
  * - JWT validation for authentication
@@ -118,7 +121,7 @@ export function middleware(request: NextRequest) {
       const response = NextResponse.json(
         { 
           message: 'Rate limit exceeded',
-          retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
+          retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / MILLISECONDS_TO_SECONDS)
         },
         { status: 429 }
       );
