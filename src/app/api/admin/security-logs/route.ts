@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { securityLogger } from "@/lib/security-logger";
-import { prisma } from "@/lib/prisma";
+import { securityLogger } from '@/lib/security/security-logger';
+import { prisma } from '@/lib/database/prisma';
 
 interface JwtPayload {
   userId: string;

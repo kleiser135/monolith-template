@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
-import apiClient from '@/lib/api-client';
+import apiClient from '@/lib/api/api-client';
 import { toast } from 'sonner';
 
 // Mock dependencies

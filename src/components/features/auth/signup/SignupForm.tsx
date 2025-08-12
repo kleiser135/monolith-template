@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/form/form"
 import { Input } from "@/components/ui/input/input"
 import { toast } from "sonner"
-import { signupSchema } from "@/lib/validators"
+import { signupSchema } from '@/lib/validation/validators'
 import { useState, useEffect, useTransition } from "react"
-import { signup } from "@/lib/actions"
+import { signup } from '@/lib/api/actions'
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 

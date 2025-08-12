@@ -12,7 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog/alert-dialog";
 import { Button } from "@/components/ui/button/button";
-import { deleteAccount } from "@/lib/actions";
+import { deleteAccount } from '@/lib/api/actions';
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

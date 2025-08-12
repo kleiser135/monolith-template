@@ -12,7 +12,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock the signup action
-vi.mock('@/lib/actions', () => ({
+vi.mock('@/lib/api/actions', () => ({
   signup: vi.fn(),
 }));
 
@@ -25,7 +25,7 @@ vi.mock('sonner', () => ({
 }));
 
 // Import the mocked signup function
-import { signup } from '@/lib/actions';
+import { signup } from '@/lib/api/actions';
 const mockSignup = vi.mocked(signup);
 
 describe('SignupForm', () => {

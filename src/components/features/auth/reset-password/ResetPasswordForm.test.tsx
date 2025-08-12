@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ResetPasswordForm } from './ResetPasswordForm';
-import apiClient from '@/lib/api-client';
+import apiClient from '@/lib/api/api-client';
 import { toast } from 'sonner';
 import { useSearchParams, useRouter, ReadonlyURLSearchParams } from 'next/navigation';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
   useSearchParams: vi.fn(),
 }));
-vi.mock('@/lib/api-client');
+vi.mock('@/lib/api/api-client');
 vi.mock('sonner');
 
 describe('ResetPasswordForm', () => {

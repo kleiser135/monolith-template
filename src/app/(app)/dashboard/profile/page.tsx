@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { prisma } from '@/lib/database/prisma';
 import jwt from "jsonwebtoken";
 import { ChangePasswordForm } from "@/components/features/auth/change-password/ChangePasswordForm";
 import { DeleteAccountDialog } from "@/components/features/auth/delete-account/DeleteAccountDialog";

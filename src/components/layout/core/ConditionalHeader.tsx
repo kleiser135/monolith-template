@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { AppHeader } from "./headers";
+import { AppHeader } from "../headers";
 
 interface ConditionalHeaderProps {
   isLoggedIn: boolean;
@@ -21,10 +21,12 @@ export function ConditionalHeader({ isLoggedIn }: ConditionalHeaderProps) {
   const noHeaderRoutes = ['/', '/landing', '/login', '/signup', '/forgot-password', '/reset-password', '/email-verification'];
   
   // Check if current route should have no header
-  const hasNoHeader = noHeaderRoutes.some(route => pathname.startsWith(route));
+  // Use exact match for root path, and startsWith for others to handle nested routes
+  const hasNoHeader = pathname === '/' || 
+    noHeaderRoutes.slice(1).some(route => pathname.startsWith(route));
   
-  if (hasNoHeader) {
-    // Landing page and auth pages handle their own headers or have none
+  if (hasNoHeader && !isLoggedIn) {
+    // Landing page and auth pages handle their own headers when not logged in
     return null;
   }
   

@@ -1,16 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button/button";
-import { 
-  showInfo, 
-  showWarning, 
-  showLoading, 
-  showPromise, 
-  showAction, 
-  showSuccess, 
+import {
+  showInfo,
+  showWarning,
+  showLoading,
+  showPromise,
+  showAction,
+  showSuccess,
   showError,
-  dismissAll 
-} from "@/lib/toast-helpers";
+  dismissAll
+} from '@/lib/ui/toast-helpers';
 
 export function ToastDemo() {
   // Simulate an async operation for promise toast
@@ -29,11 +29,28 @@ export function ToastDemo() {
   // Simulate a long operation for loading toast
   const handleLoadingDemo = () => {
     const _toastId = showLoading("Processing your request...");
-    
+
     setTimeout(() => {
       showSuccess("Request processed successfully!");
       // The loading toast will be automatically dismissed when a new toast appears
     }, 3000);
+  };
+
+  // Handle promise toast with proper error handling
+  const handlePromiseDemo = () => {
+    const operation = simulateAsyncOperation();
+    
+    showPromise(operation, {
+      loading: "Processing...",
+      success: "Done!",
+      error: "Failed to process"
+    });
+
+    // Catch any unhandled rejections to prevent test errors
+    operation.catch(() => {
+      // Error is already handled by showPromise
+      // This catch prevents unhandled promise rejection
+    });
   };
 
   return (
@@ -42,19 +59,19 @@ export function ToastDemo() {
       <p className="text-gray-600 mb-8">
         Try out all the different types of toast notifications available in our app.
       </p>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Basic Success/Error (already in use) */}
         <div className="space-y-2">
           <h3 className="font-semibold text-green-600">Success & Error</h3>
-          <Button 
+          <Button
             onClick={() => showSuccess("Operation successful!")}
             variant="outline"
             className="w-full"
           >
             Success Toast
           </Button>
-          <Button 
+          <Button
             onClick={() => showError("Something went wrong!")}
             variant="outline"
             className="w-full"
@@ -66,14 +83,14 @@ export function ToastDemo() {
         {/* New Info/Warning */}
         <div className="space-y-2">
           <h3 className="font-semibold text-blue-600">Info & Warning</h3>
-          <Button 
+          <Button
             onClick={() => showInfo("Here's some helpful information")}
             variant="outline"
             className="w-full"
           >
             Info Toast
           </Button>
-          <Button 
+          <Button
             onClick={() => showWarning("This requires your attention")}
             variant="outline"
             className="w-full"
@@ -85,21 +102,15 @@ export function ToastDemo() {
         {/* Loading States */}
         <div className="space-y-2">
           <h3 className="font-semibold text-purple-600">Loading States</h3>
-          <Button 
+          <Button
             onClick={handleLoadingDemo}
             variant="outline"
             className="w-full"
           >
             Loading Toast
           </Button>
-          <Button 
-            onClick={() => {
-              showPromise(simulateAsyncOperation(), {
-                loading: "Processing...",
-                success: "Done!",
-                error: "Failed to process"
-              });
-            }}
+          <Button
+            onClick={handlePromiseDemo}
             variant="outline"
             className="w-full"
           >
@@ -110,7 +121,7 @@ export function ToastDemo() {
         {/* Interactive */}
         <div className="space-y-2">
           <h3 className="font-semibold text-orange-600">Interactive</h3>
-          <Button 
+          <Button
             onClick={() => {
               showAction(
                 "Email sent successfully",
@@ -125,7 +136,7 @@ export function ToastDemo() {
           >
             Action Toast
           </Button>
-          <Button 
+          <Button
             onClick={dismissAll}
             variant="destructive"
             className="w-full"
@@ -149,4 +160,4 @@ export function ToastDemo() {
       </div>
     </div>
   );
-} 
+}

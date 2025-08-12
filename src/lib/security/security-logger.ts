@@ -1,4 +1,4 @@
-import { prisma } from './prisma';
+import { prisma } from '../database/prisma';
 
 export enum SecurityEventType {
   AVATAR_UPLOAD_SUCCESS = 'avatar_upload_success',
