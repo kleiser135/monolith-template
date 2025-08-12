@@ -9,15 +9,15 @@ import { PrismaClient } from '@prisma/client'
 if (typeof globalThis.TextEncoder === 'undefined') {
   // Use dynamic import for util module in ES module context
   const util = await import('util');
-  globalThis.TextEncoder = util.TextEncoder;
-  globalThis.TextDecoder = util.TextDecoder;
+  globalThis.TextEncoder = util.TextEncoder as any;
+  globalThis.TextDecoder = util.TextDecoder as any;
 }
 
 // Additional polyfills for Node.js environment
 if (typeof globalThis.crypto === 'undefined') {
   // Use dynamic import for crypto module in ES module context
   const crypto = await import('crypto');
-  globalThis.crypto = crypto.webcrypto;
+  globalThis.crypto = crypto.webcrypto as any;
 }
 
 dotenv.config({ path: '.env' })

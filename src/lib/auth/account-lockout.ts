@@ -26,6 +26,19 @@ interface LockoutInfo {
  */
 const loginAttempts = new Map<string, LockoutInfo>();
 
+// PRODUCTION SECURITY WARNING: Alert developers at runtime
+if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
+  console.warn(
+    '🚨 SECURITY ALERT: In-memory account lockout storage detected in production!\n' +
+    '   This creates serious security vulnerabilities:\n' +
+    '   - Lockout state lost on server restarts\n' +
+    '   - Does not work in distributed deployments\n' +
+    '   - Memory leaks from unbounded growth\n' +
+    '   ⚡ IMMEDIATE ACTION REQUIRED: Replace with Redis/database storage\n' +
+    '   📍 File: src/lib/auth/account-lockout.ts'
+  );
+}
+
 export interface LockoutConfig {
   maxAttempts: number;
   baseLockoutTime: number; // minutes
