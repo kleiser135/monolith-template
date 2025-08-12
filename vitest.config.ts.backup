@@ -18,12 +18,6 @@ export default defineConfig({
       '**/dist/**'
       // Global rate limiting tests now use proper mocking strategy
     ],
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true
-      }
-    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -52,10 +46,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  define: {
-    global: 'globalThis',
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom']
+  esbuild: {
+    target: 'node14'
   }
-})
+}) 
