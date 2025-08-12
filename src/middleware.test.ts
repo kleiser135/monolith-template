@@ -35,6 +35,9 @@ const createRequest = (url: string, cookies: Record<string, string> = {}) => {
  * See: src/middleware.ts for production JWT implementation
  */
 const createJWTToken = (payload: Record<string, any>) => {
+  if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'test') {
+    throw new Error('Mock createJWTToken must only be used in test environments');
+  }
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const encodedPayload = btoa(JSON.stringify(payload));
   const signature = 'mock-signature'; // TEST ONLY: Not cryptographically secure
