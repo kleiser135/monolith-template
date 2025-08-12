@@ -34,9 +34,17 @@ const createRequest = (url: string, cookies: Record<string, string> = {}) => {
  * 
  * See: src/middleware.ts for production JWT implementation
  */
-const createJWTToken = (payload: Record<string, any>) => {
-  if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'test') {
-    throw new Error('Mock createJWTToken must only be used in test environments');
+/**
+ * @internal
+ * @deprecated This mock JWT function is for test use only. NEVER use in production.
+ */
+const createJWTToken_TEST_ONLY_ = (payload: Record<string, any>) => {
+  if (
+    typeof process !== 'undefined' &&
+    process.env &&
+    process.env.NODE_ENV !== 'test'
+  ) {
+    throw new Error('Mock createJWTToken_TEST_ONLY_ must only be used in test environments (NODE_ENV === "test")');
   }
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const encodedPayload = btoa(JSON.stringify(payload));
@@ -63,7 +71,7 @@ describe('Middleware', () => {
     });
 
     it('should allow authenticated users to access protected routes', () => {
-      const validToken = createJWTToken({
+      const validToken = createJWTToken_TEST_ONLY_({
         userId: 'user123',
         exp: Math.floor(Date.now() / 1000) + 3600, // Expires in 1 hour
         iat: Math.floor(Date.now() / 1000)
@@ -77,7 +85,7 @@ describe('Middleware', () => {
     });
 
     it('should redirect authenticated users from auth-only routes to dashboard', () => {
-      const validToken = createJWTToken({
+      const validToken = createJWTToken_TEST_ONLY_({
         userId: 'user123',
         exp: Math.floor(Date.now() / 1000) + 3600,
         iat: Math.floor(Date.now() / 1000)
@@ -110,7 +118,7 @@ describe('Middleware', () => {
 
   describe('Root Path Handling', () => {
     it('should redirect authenticated users from root to dashboard', () => {
-      const validToken = createJWTToken({
+      const validToken = createJWTToken_TEST_ONLY_({
         userId: 'user123',
         exp: Math.floor(Date.now() / 1000) + 3600,
         iat: Math.floor(Date.now() / 1000)
@@ -142,7 +150,7 @@ describe('Middleware', () => {
     });
 
     it('should reject expired tokens', () => {
-      const expiredToken = createJWTToken({
+      const expiredToken = createJWTToken_TEST_ONLY_({
         userId: 'user123',
         exp: Math.floor(Date.now() / 1000) - 3600, // Expired 1 hour ago
         iat: Math.floor(Date.now() / 1000) - 7200
@@ -184,7 +192,7 @@ describe('Middleware', () => {
     it('should handle missing JWT_SECRET environment variable', () => {
       vi.stubEnv('JWT_SECRET', '');
       
-      const validToken = createJWTToken({
+      const validToken = createJWTToken_TEST_ONLY_({
         userId: 'user123',
         exp: Math.floor(Date.now() / 1000) + 3600,
         iat: Math.floor(Date.now() / 1000)
@@ -254,7 +262,7 @@ describe('Middleware', () => {
     });
 
     it('should handle nested auth routes', () => {
-      const validToken = createJWTToken({
+      const validToken = createJWTToken_TEST_ONLY_({
         userId: 'user123',
         exp: Math.floor(Date.now() / 1000) + 3600,
         iat: Math.floor(Date.now() / 1000)
@@ -315,7 +323,7 @@ describe('Middleware', () => {
 
   describe('Edge Cases', () => {
     it('should handle tokens without expiration', () => {
-      const tokenWithoutExp = createJWTToken({
+      const tokenWithoutExp = createJWTToken_TEST_ONLY_({
         userId: 'user123',
         iat: Math.floor(Date.now() / 1000)
         // No exp field
