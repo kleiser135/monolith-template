@@ -203,8 +203,7 @@ export function sanitizeObject(
     for (const [key, value] of Object.entries(obj)) {
       // Sanitize the key itself (preserve literal tag names like '<key>' as 'key')
       // Extracts tag names from HTML-like keys (e.g., "<div>" or "</div>" becomes "div")
-      const tagNameExtractor = /<\/?\s*([a-z0-9\-:_]+)[^>]*>/gi;
-      const replaced = key.replace(tagNameExtractor, '$1');
+      const replaced = key.replace(TAG_NAME_EXTRACTOR_REGEX, '$1');
       const sanitizedKey = sanitizeString(replaced, { 
         ...defaultSanitizationConfig, 
         maxLength: 100 
