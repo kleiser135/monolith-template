@@ -20,11 +20,24 @@ const createRequest = (url: string, cookies: Record<string, string> = {}) => {
   return request;
 };
 
-// Helper to create a valid JWT token payload (encoded)
+/**
+ * TEST-ONLY JWT Token Creation
+ * 
+ * WARNING: This mock JWT implementation uses simple base64 encoding without proper HMAC validation.
+ * It is ONLY suitable for testing purposes and must NEVER be used in production code.
+ * 
+ * Production JWT handling should use:
+ * - Proper cryptographic signing with HMAC-SHA256
+ * - Secure secret management
+ * - Token expiration validation
+ * - Proper signature verification
+ * 
+ * See: src/middleware.ts for production JWT implementation
+ */
 const createJWTToken = (payload: Record<string, any>) => {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const encodedPayload = btoa(JSON.stringify(payload));
-  const signature = 'mock-signature';
+  const signature = 'mock-signature'; // TEST ONLY: Not cryptographically secure
   return `${header}.${encodedPayload}.${signature}`;
 };
 

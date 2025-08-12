@@ -10,9 +10,20 @@ interface LockoutInfo {
   lockoutLevel: number; // 0-5, increasing severity
 }
 
-// TODO: This in-memory store is NOT suitable for production.
-// Replace with a persistent store (e.g., Redis) to ensure lockout data persists across server
-// restarts and works correctly in multi-instance deployments.
+/**
+ * TODO: CRITICAL SECURITY ISSUE - In-memory storage for production environments
+ * 
+ * This in-memory store poses a significant security risk in production:
+ * - Lockout state is lost on server restarts, allowing attackers to bypass rate limiting
+ * - Does not work in distributed/multi-instance deployments
+ * - Memory usage grows unbounded without proper cleanup
+ * 
+ * REQUIRED FOR PRODUCTION:
+ * - Replace with persistent storage (Redis, PostgreSQL, MongoDB)
+ * - Implement proper data expiration/cleanup mechanisms
+ * - Add distributed locking for multi-instance environments
+ * - Consider using existing rate limiting services (Upstash, Redis Cloud)
+ */
 const loginAttempts = new Map<string, LockoutInfo>();
 
 export interface LockoutConfig {
