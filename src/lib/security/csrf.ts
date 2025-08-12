@@ -81,7 +81,7 @@ export function verifyCSRFToken(token: string, config: CSRFConfig = defaultConfi
  */
 export function setCSRFCookie(response: NextResponse, token: string, config: CSRFConfig = defaultConfig): NextResponse {
   response.cookies.set(config.cookieName, token, {
-    httpOnly: false, // Must be readable by JavaScript for form submission
+    httpOnly: true, // Prevent JavaScript access to mitigate XSS risk
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: config.maxAge,

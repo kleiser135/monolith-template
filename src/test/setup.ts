@@ -7,16 +7,18 @@ import { PrismaClient } from '@prisma/client'
 
 // Polyfill for TextEncoder/TextDecoder if not available (fixes esbuild CI issue)
 if (typeof globalThis.TextEncoder === 'undefined') {
+  // Dynamic import would be preferred but causes type issues in test environment
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { TextEncoder, TextDecoder } = require('util')
-  globalThis.TextEncoder = TextEncoder
-  globalThis.TextDecoder = TextDecoder
+  const util = require('util');
+  globalThis.TextEncoder = util.TextEncoder;
+  globalThis.TextDecoder = util.TextDecoder;
 }
 
 // Additional polyfills for Node.js environment
 if (typeof globalThis.crypto === 'undefined') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  globalThis.crypto = require('crypto').webcrypto
+  const crypto = require('crypto');
+  globalThis.crypto = crypto.webcrypto;
 }
 
 dotenv.config({ path: '.env' })

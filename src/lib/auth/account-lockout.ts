@@ -10,7 +10,9 @@ interface LockoutInfo {
   lockoutLevel: number; // 0-5, increasing severity
 }
 
-// In-memory store (use Redis in production)
+// TODO: This in-memory store is NOT suitable for production.
+// Replace with a persistent store (e.g., Redis) to ensure lockout data persists across server
+// restarts and works correctly in multi-instance deployments.
 const loginAttempts = new Map<string, LockoutInfo>();
 
 export interface LockoutConfig {
