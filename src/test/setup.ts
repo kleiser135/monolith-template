@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client'
 
 // Polyfill for TextEncoder/TextDecoder if not available (fixes esbuild CI issue)
 if (typeof globalThis.TextEncoder === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { TextEncoder, TextDecoder } = require('util')
   globalThis.TextEncoder = TextEncoder
   globalThis.TextDecoder = TextDecoder
@@ -14,6 +15,7 @@ if (typeof globalThis.TextEncoder === 'undefined') {
 
 // Additional polyfills for Node.js environment
 if (typeof globalThis.crypto === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   globalThis.crypto = require('crypto').webcrypto
 }
 
