@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/database/prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { loginSchema } from '@/lib/validators';
+import { loginSchema } from '@/lib/validation/validators';
 import { z } from 'zod';
 import { 
   isLockedOut, 
   recordFailedAttempt, 
   recordSuccessfulLogin, 
   getProgressiveDelay 
-} from '@/lib/account-lockout';
+} from '@/lib/auth/account-lockout';
 
 export async function POST(req: NextRequest) {
   try {

@@ -4,7 +4,7 @@ import { Header } from './Header';
 import { cookies } from 'next/headers';
 
 // Mock the AppHeader component to simplify testing
-vi.mock('./headers', () => ({
+vi.mock('../headers', () => ({
   AppHeader: ({ isLoggedIn }: { isLoggedIn: boolean }) => (
     <div data-testid="app-header-mock" data-is-logged-in={isLoggedIn} />
   ),

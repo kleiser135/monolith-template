@@ -4,7 +4,7 @@ import {
   addSecurityHeaders, 
   addApiSecurityHeaders, 
   addUploadSecurityHeaders 
-} from '@/lib/security-headers'
+} from '@/lib/security/security-headers'
 
 describe('Security Headers', () => {
   let mockResponse: NextResponse

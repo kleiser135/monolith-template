@@ -13,6 +13,11 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['src/test/setup.ts'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**'
+      // Global rate limiting tests now use proper mocking strategy
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

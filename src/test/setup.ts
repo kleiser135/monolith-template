@@ -96,7 +96,7 @@ vi.mock('jsonwebtoken', () => ({
 export const prismaMock = mockDeep<PrismaClient>()
 
 // Mock Prisma Client
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/database/prisma', () => ({
   __esModule: true,
   prisma: prismaMock,
 }))

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST, DELETE } from './route';
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/database/prisma';
 import jwt from 'jsonwebtoken';
-import { checkRateLimit } from '@/lib/rate-limiting';
-import { securityLogger } from '@/lib/security-logger';
+import { checkRateLimit } from '@/lib/api/rate-limiting';
+import { securityLogger } from '@/lib/security/security-logger';
 import { PolyglotDetector } from '@/lib/security/PolyglotDetector';
 import { IPValidator } from '@/lib/security/IPValidator';
 import { EnhancedSecurityLogger } from '@/lib/security/EnhancedSecurityLogger';
@@ -21,7 +21,7 @@ vi.mock('next/headers', () => ({
   cookies: vi.fn()
 }));
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/database/prisma', () => ({
   prisma: {
     user: {
       findUnique: vi.fn(),
@@ -31,8 +31,8 @@ vi.mock('@/lib/prisma', () => ({
 }));
 
 vi.mock('jsonwebtoken');
-vi.mock('@/lib/rate-limiting');
-vi.mock('@/lib/security-logger');
+vi.mock('@/lib/api/rate-limiting');
+vi.mock('@/lib/security/security-logger');
 vi.mock('@/lib/security/PolyglotDetector');
 vi.mock('@/lib/security/IPValidator');
 vi.mock('@/lib/security/EnhancedSecurityLogger');

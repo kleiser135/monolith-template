@@ -256,3 +256,10 @@ export function getGlobalRateLimitStats(): {
     avgRequestsPerEntry: totalEntries > 0 ? totalRequests / totalEntries : 0
   };
 }
+
+/**
+ * Reset the global rate limit store (for testing purposes)
+ */
+export function resetGlobalRateLimitStore(): void {
+  globalRateLimitStore.clear();
+}

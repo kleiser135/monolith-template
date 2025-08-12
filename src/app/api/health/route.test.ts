@@ -4,13 +4,40 @@ import { prismaMock } from '@/test/setup'
 import fs from 'fs'
 import path from 'path'
 
+// Mock filesystem operations with shared function instances for CJS/ESM
+vi.mock('fs', () => {
+  const existsSync = vi.fn();
+  const mkdirSync = vi.fn();
+  const rmSync = vi.fn();
+  const writeFileSync = vi.fn();
+  const unlinkSync = vi.fn();
+  return {
+    default: { existsSync, mkdirSync, rmSync, writeFileSync, unlinkSync },
+    existsSync,
+    mkdirSync,
+    rmSync,
+    writeFileSync,
+    unlinkSync,
+  };
+})
+
+vi.mock('path', () => {
+  const join = vi.fn();
+  const resolve = vi.fn();
+  return {
+    default: { join, resolve },
+    join,
+    resolve,
+  };
+})
+
 // Mock the security headers function
 vi.mock('@/lib/security-headers', () => ({
   addApiSecurityHeaders: vi.fn((response) => response),
 }))
 
 // Explicitly mock the prisma import for dynamic imports in CI environments
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/database/prisma', () => ({
   __esModule: true,
   prisma: prismaMock,
 }))
@@ -27,25 +54,38 @@ describe('/api/health', () => {
     vi.stubEnv('JWT_SECRET', 'test-jwt-secret-that-is-long-enough-for-validation')
     vi.stubEnv('NEXTAUTH_SECRET', 'test-nextauth-secret')
     
-    // Create a test uploads directory
-    testUploadsDir = path.join(process.cwd(), 'test-uploads')
-    if (!fs.existsSync(testUploadsDir)) {
-      fs.mkdirSync(testUploadsDir, { recursive: true })
-    }
+    // Mock path functions to return test directory paths
+    testUploadsDir = '/mocked/test-uploads'
+    vi.mocked(path.resolve).mockReturnValue(testUploadsDir)
+    // Make join behave realistically for our usage in checkStorage
+    ;(path.join as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (a: string, b: string) => `${a}/${b}`
+    )
+    
+    // Setup default mock behavior - directory doesn't exist initially
+    vi.mocked(fs.existsSync).mockReturnValue(false)
+    vi.mocked(fs.mkdirSync).mockReturnValue(undefined)
+    vi.mocked(fs.rmSync).mockReturnValue(undefined)
+    vi.mocked(fs.writeFileSync).mockReturnValue(undefined)
+    vi.mocked(fs.unlinkSync).mockReturnValue(undefined)
+    
     vi.stubEnv('UPLOADS_DIR', testUploadsDir)
   })
 
   afterEach(() => {
-    // Clean up test uploads directory
-    if (fs.existsSync(testUploadsDir)) {
-      fs.rmSync(testUploadsDir, { recursive: true, force: true })
-    }
+    // No real cleanup needed since we're using mocks
+    vi.clearAllMocks()
   })
 
   it('should return healthy status when all checks pass', async () => {
     // Mock successful database connection
     prismaMock.$executeRaw.mockResolvedValue(1)
     prismaMock.$disconnect.mockResolvedValue(undefined)
+    
+    // Mock filesystem - uploads directory exists and is writable
+    vi.mocked(fs.existsSync).mockReturnValue(true)
+    vi.mocked(fs.writeFileSync).mockReturnValue(undefined)
+    vi.mocked(fs.unlinkSync).mockReturnValue(undefined)
 
     const response = await GET()
     const data = await response.json()

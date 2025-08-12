@@ -3,7 +3,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import { DeleteAccountDialog } from "./DeleteAccountDialog";
-import { deleteAccount } from "@/lib/actions";
+import { deleteAccount } from '@/lib/api/actions';
 import { toast } from "sonner";
 
 const mockRouterPush = vi.fn();
@@ -18,7 +18,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock the server action
-vi.mock("@/lib/actions", () => ({
+vi.mock("@/lib/api/actions", () => ({
   deleteAccount: vi.fn(),
 }));
 

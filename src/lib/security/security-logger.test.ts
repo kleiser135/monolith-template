@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { SecurityEventType, securityLogger } from './security-logger';
-import { prisma } from './prisma';
+import { prisma } from '../database/prisma';
 
 // Mock the prisma module
 vi.mock('./prisma', () => ({

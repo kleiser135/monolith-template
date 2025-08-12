@@ -10,7 +10,7 @@ import {
   showSuccess, 
   showError,
   dismissAll 
-} from "@/lib/toast-helpers";
+} from '@/lib/ui/toast-helpers';
 
 export function ToastDemo() {
   // Simulate an async operation for promise toast

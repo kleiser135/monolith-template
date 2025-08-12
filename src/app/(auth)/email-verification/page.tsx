@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button/button";
 import { CheckCircle, XCircle, Mail, ArrowLeft } from "lucide-react";
-import apiClient from "@/lib/api-client";
+import apiClient from '@/lib/api/api-client';
 
 function VerificationComponent() {
   const searchParams = useSearchParams();
