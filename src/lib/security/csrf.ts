@@ -15,10 +15,20 @@ export interface CSRFConfig {
   maxAge: number; // in seconds
 }
 
+function getCSRFSecret(): string {
+  const secret = process.env.CSRF_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error(
+      "CSRF secret is not set. Please set the CSRF_SECRET or JWT_SECRET environment variable."
+    );
+  }
+  return secret;
+}
+
 const defaultConfig: CSRFConfig = {
   cookieName: '__Host-csrf-token',
   headerName: 'X-CSRF-Token',
-  secret: process.env.CSRF_SECRET || process.env.JWT_SECRET || 'fallback-csrf-secret',
+  secret: getCSRFSecret(),
   tokenLength: 32,
   maxAge: 24 * 60 * 60, // 24 hours
 };
