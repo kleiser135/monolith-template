@@ -30,6 +30,9 @@ const htmlSanitizationConfig: SanitizationConfig = {
   trimWhitespace: true
 };
 
+// Regex to extract tag names from HTML-like keys (e.g., "<div>" or "</div>" becomes "div")
+const TAG_NAME_EXTRACTOR_REGEX = /<\/?([^>]+)>/g;
+
 /**
  * Sanitize string input to prevent XSS attacks
  */
