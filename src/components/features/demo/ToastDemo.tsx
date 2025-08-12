@@ -155,7 +155,7 @@ export function ToastDemo() {
           <div><code>showInfo(&quot;Profile updated&quot;)</code> - ℹ️ New: Helpful information</div>
           <div><code>showWarning(&quot;Session expires soon&quot;)</code> - ⚠️ New: Important warnings</div>
           <div><code>showLoading(&quot;Saving changes...&quot;)</code> - ⏳ New: Ongoing operations</div>
-          <div><code>showPromise(promise, messages)</code> - ��� New: Auto loading→success/error</div>
+          <div><code>showPromise(promise, messages)</code> - 🔄 New: Auto loading→success/error</div>
         </div>
       </div>
     </div>
