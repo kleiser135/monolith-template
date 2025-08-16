@@ -1,22 +1,33 @@
-### What does this PR do?
+## Description
+Please provide a brief description of the changes you've made.
 
-_A clear, concise summary of the changes. Explain the high-level goal. Example: "This PR introduces the core User Management features, allowing users to view their profile, change their password, and delete their account."_
+## Type of Change
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
+- [ ] Code refactoring
+- [ ] Performance improvement
 
----
+## Testing
+- [ ] I have tested these changes locally
+- [ ] All existing tests pass
+- [ ] I have added new tests for my changes (if applicable)
+- [ ] Test coverage remains above 80%
 
-### Why is this change being made?
+## Checklist
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] Any dependent changes have been merged and published
 
-_The "business logic" behind the change. Connect it to a feature, a bug fix, or a larger goal. Example: "This is a necessary step towards building a secure, self-service platform and completes the foundational items in the 'User Management' section of our checklist (#11)."_
+## Screenshots (if applicable)
+Please add screenshots to help reviewers understand your changes.
 
----
-
-### How were these changes implemented?
-
-_Highlight the key technical decisions. Mention any new libraries, major refactors, or important architectural choices. Example: "Created a new `deleteAccount` server action that runs in a Prisma transaction to ensure data integrity. Added `shadcn/alert-dialog` for safe, two-step confirmation on destructive actions."_
-
----
-
-### How to test this?
+## Additional Notes
+Add any other context about the pull request here.
 
 _Provide explicit, step-by-step instructions for the reviewer to verify the changes. Assume they have no prior context._
 _Example:_
