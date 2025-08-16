@@ -1,53 +1,35 @@
-# Monolith Template
+# Next.js Fullstack Template
 
-A production-ready, full-stack Next.js application template designed for rapid development and enterprise deployment. Built with TypeScript, Prisma, PostgreSQL, and comprehensive testing infrastructure achieving 81.21% code coverage.
+A production-ready template for building fullstack applications.
 
-## 🎯 Production Achievements
-
-- ✅ **Testing Excellence**: 709 tests passing with 81.21% code coverage
-- ✅ **Security Hardened**: Enterprise-grade authentication and security measures
-- ✅ **Production Ready**: Complete deployment infrastructure and monitoring
-- ✅ **Documentation Complete**: Comprehensive guides and operational procedures
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+ and npm
-- Docker and Docker Compose
-- Git
-
-### Setup
+## Quick Start
 ```bash
-# 1. Clone and install dependencies
-git clone <repository-url>
-cd monolith-template
-npm install
+# Use this template
+npx create-next-app@latest my-app --use-npm --example [your-template-url]
+# or click "Use this template" on GitHub
 
-# 2. Setup environment variables
+cd my-app
 cp .env.example .env.local
-# Edit .env.local with your configuration
+# Edit .env.local with your values
 
-# 3. Start the database
-docker-compose up -d
-
-# 4. Run database migrations
-npx prisma migrate dev
-
-# 5. Seed the database (optional)
-npm run db:seed
-
-# 6. Start development server
+npm install
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to see your application.
+## Features
+- ✅ Authentication (JWT-based)
+- ✅ User Management
+- ✅ Protected Routes
+- ✅ PostgreSQL + Prisma
+- ✅ Testing Suite
+- ✅ UI Components
+- ✅ Dark Mode
+- ✅ TypeScript
 
-## 🏗️ Architecture
-
-### Tech Stack
-- **Frontend**: Next.js 15.4.4 with App Router, React 18, TypeScript
-- **Backend**: Next.js API Routes with server actions
-- **Database**: PostgreSQL with Prisma ORM
+## Documentation
+- [Template Guide](./TEMPLATE_GUIDE.md)
+- [Customization Guide](./CUSTOMIZATION.md)
+- [API Documentation](./docs/api.md)
 - **Styling**: Tailwind CSS v4 with custom design system
 - **Animation**: Framer Motion for advanced animations
 - **Authentication**: JWT with HttpOnly cookies, bcrypt password hashing
