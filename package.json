@@ -1,6 +1,9 @@
 {
-  "name": "monolith-template",
-  "version": "0.1.0",
+  "name": "nextjs-fullstack-template",
+  "version": "1.0.0",
+  "description": "Production-ready Next.js template with auth, testing, and UI components",
+  "author": "Your Name",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {
