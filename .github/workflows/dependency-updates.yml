@@ -19,7 +19,7 @@ jobs:
       update_summary: ${{ steps.check.outputs.update_summary }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -101,7 +101,7 @@ jobs:
     if: needs.check-updates.outputs.has_updates == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           
