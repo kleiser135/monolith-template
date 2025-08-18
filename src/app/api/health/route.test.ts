@@ -173,7 +173,7 @@ describe('/api/health', () => {
     const data = await response.json()
 
     expect(data.timestamp).toBeDefined()
-    expect(data.version).toBe('0.1.0') // This is the actual npm_package_version from the environment
+    expect(data.version).toBe('1.0.0') // This is the actual npm_package_version from the environment
     expect(data.environment).toBeDefined()
     expect(data.uptime).toBeDefined()
     expect(data.memory).toBeDefined()
