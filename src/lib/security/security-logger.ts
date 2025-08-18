@@ -15,7 +15,26 @@ export enum SecurityEventType {
   MIME_MISMATCH = 'mime_mismatch',
   POLYGLOT_FILE_DETECTED = 'polyglot_file_detected',
   SSRF_ATTEMPT = 'ssrf_attempt',
-  CONTENT_ANALYSIS_FAILED = 'content_analysis_failed'
+  CONTENT_ANALYSIS_FAILED = 'content_analysis_failed',
+  // Admin events
+  ADMIN_LOGIN = 'admin_login',
+  ADMIN_LOGOUT = 'admin_logout',
+  ADMIN_DASHBOARD_ACCESS = 'admin_dashboard_access',
+  ADMIN_SECURITY_LOGS_ACCESS = 'admin_security_logs_access',
+  ADMIN_PERMISSION_DENIED = 'admin_permission_denied',
+  ADMIN_ACTION_SUCCESS = 'admin_action_success',
+  ADMIN_ACTION_ERROR = 'admin_action_error',
+  // Authentication events
+  LOGIN_SUCCESS = 'login_success',
+  LOGIN_FAILED = 'login_failed',
+  LOGOUT = 'logout',
+  PASSWORD_RESET = 'password_reset',
+  ACCOUNT_LOCKED = 'account_locked',
+  // Role and permission events
+  ROLE_CHANGED = 'role_changed',
+  PERMISSION_GRANTED = 'permission_granted',
+  PERMISSION_REVOKED = 'permission_revoked',
+  UNAUTHORIZED_ACCESS_ATTEMPT = 'unauthorized_access_attempt'
 }
 
 export interface SecurityEvent {

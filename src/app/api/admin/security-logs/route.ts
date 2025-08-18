@@ -1,71 +1,18 @@
+/**
+ * Admin Security Logs API Endpoint
+ * 
+ * This endpoint allows administrators to view security logs with filtering and pagination.
+ * Protected by RBAC - requires VIEW_SECURITY_LOGS permission.
+ */
+
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import { securityLogger } from '@/lib/security/security-logger';
-import { prisma } from '@/lib/database/prisma';
+import { securityLogger, SecurityEventType } from '@/lib/security/security-logger';
+import { withPermissionProtection } from '@/lib/auth/rbac-middleware';
+import { Permission } from '@/lib/auth/roles';
 
-interface JwtPayload {
-  userId: string;
-}
-
-async function getUserFromToken() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token');
-
-  if (!token) {
-    return null;
-  }
-
+async function handleSecurityLogsRequest(request: NextRequest, user: any) {
   try {
-    const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as JwtPayload;
-    return decoded.userId;
-  } catch (_error) {
-    return null;
-  }
-}
-
-async function getUserById(userId: string) {
-  try {
-    return await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true, role: true }
-    });
-  } catch (_error) {
-    return null;
-  }
-}
-
-// Helper function to check if user is admin using database role system
-function isAdmin(user: { email: string, role?: string } | null): boolean {
-  if (!user) return false;
-  
-  // Enforce role-based access control using the role property
-  if (user.role === "admin") {
-    return true;
-  }
-  
-  // Fallback: Use environment variable for admin emails (legacy support)
-  const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
-  const adminEmails = adminEmailsEnv.split(',').map(email => email.trim()).filter(email => email.length > 0);
-  return adminEmails.includes(user.email);
-}
-
-export async function GET(req: NextRequest) {
-  try {
-    const userId = await getUserFromToken();
-    
-    // Check if user is authenticated
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    
-    // Enforce role-based access control: only admins can view security logs
-    const user = await getUserById(userId);
-    if (!isAdmin(user)) {
-      return NextResponse.json({ error: "Forbidden: Admins only" }, { status: 403 });
-    }
-    
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
     const userFilter = searchParams.get('userId');
 
@@ -90,15 +37,45 @@ export async function GET(req: NextRequest) {
       details: JSON.parse(event.details || '{}'),
     }));
 
+    // Log admin access to security logs
+    securityLogger.log({
+      type: SecurityEventType.ADMIN_SECURITY_LOGS_ACCESS,
+      userId: user.id,
+      details: { 
+        accessedBy: user.email,
+        filterUserId: userFilter,
+        resultCount: formattedEvents.length
+      },
+      severity: 'low'
+    });
+
     return NextResponse.json({ 
       events: formattedEvents,
       total: events.length,
     });
   } catch (error) {
     console.error("Failed to fetch security logs:", error);
+    
+    // Log the error for security monitoring
+    securityLogger.log({
+      type: SecurityEventType.ADMIN_ACTION_ERROR,
+      userId: user.id,
+      details: { 
+        action: 'fetch_security_logs',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      },
+      severity: 'medium'
+    });
+    
     return NextResponse.json(
       { error: "Failed to fetch security logs" },
       { status: 500 }
     );
   }
 }
+
+// Export the protected route handler - requires VIEW_SECURITY_LOGS permission
+export const GET = withPermissionProtection(
+  Permission.VIEW_SECURITY_LOGS,
+  handleSecurityLogsRequest
+);

@@ -76,8 +76,10 @@ describe('Security Logs Stream API', () => {
   describe('GET /api/admin/security-logs/stream', () => {
     it('should return SSE stream for admin user', async () => {
       // Set up admin user
-
-      vi.stubEnv('ADMIN_EMAILS', 'admin@test.com')
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        ...mockUser,
+        role: 'admin' // ADMIN role has VIEW_SECURITY_LOGS permission
+      } as any)
       
       const request = {} as NextRequest
       const response = await GET(request)
@@ -86,9 +88,6 @@ describe('Security Logs Stream API', () => {
       expect(response.headers.get('Content-Type')).toBe('text/event-stream')
       expect(response.headers.get('Cache-Control')).toBe('no-cache')
       expect(response.headers.get('Connection')).toBe('keep-alive')
-      
-      // Restore original env
-
     })
 
     it('should return 401 for unauthenticated request', async () => {
@@ -99,24 +98,22 @@ describe('Security Logs Stream API', () => {
       
       expect(response.status).toBe(401)
       const data = await response.json()
-      expect(data.error).toBe('Unauthorized')
+      expect(data.error).toBe('Authentication required')
     })
 
     it('should return 403 for non-admin user', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         id: 'user123',
-        email: 'user@test.com' // Not in admin emails
+        email: 'user@test.com',
+        role: 'user' // USER role doesn't have VIEW_SECURITY_LOGS permission
       } as any)
-      
-
-      vi.stubEnv('ADMIN_EMAILS', 'admin@test.com')
       
       const request = {} as NextRequest
       const response = await GET(request)
       
       expect(response.status).toBe(403)
       const data = await response.json()
-      expect(data.error).toBe('Forbidden: Admins only')
+      expect(data.error).toBe('Insufficient permissions')
       
       // Restore original env
 

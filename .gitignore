@@ -55,11 +55,7 @@ node_modules/
 cypress.config.ts.orig
 /cypress/downloads/
 
-# Deployment bundles and large files
+# Large files (prevent accidental commits)
 *.tar.gz
 *.zip
-*.7z
-*.rar
 deployment-bundle.*
-dist-bundle.*
-build-bundle.*

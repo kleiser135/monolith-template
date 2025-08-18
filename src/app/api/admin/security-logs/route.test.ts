@@ -13,12 +13,17 @@ vi.mock('jsonwebtoken', () => ({
   }
 }))
 
-vi.mock('@/lib/security/security-logger', () => ({
-  securityLogger: {
-    getEventsByUserFromDatabase: vi.fn(),
-    getRecentEventsFromDatabase: vi.fn()
+vi.mock('@/lib/security/security-logger', async (importOriginal) => {
+  const actual = await importOriginal() as any
+  return {
+    ...actual,
+    securityLogger: {
+      getEventsByUserFromDatabase: vi.fn(),
+      getRecentEventsFromDatabase: vi.fn(),
+      log: vi.fn()
+    }
   }
-}))
+})
 
 vi.mock('@/lib/database/prisma', () => ({
   prisma: {
@@ -128,7 +133,7 @@ describe('Security Logs API', () => {
       
       expect(response.status).toBe(401)
       const data = await response.json()
-      expect(data.error).toBe('Unauthorized')
+      expect(data.error).toBe('Authentication required')
     })
 
     it('should return 401 for invalid token', async () => {
@@ -145,7 +150,7 @@ describe('Security Logs API', () => {
     it('should return 403 for non-admin user', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         ...mockUser,
-        role: 'user',
+        role: 'user', // USER role doesn't have VIEW_SECURITY_LOGS permission
         email: 'user@test.com'
       } as any)
       
@@ -154,13 +159,13 @@ describe('Security Logs API', () => {
       
       expect(response.status).toBe(403)
       const data = await response.json()
-      expect(data.error).toBe('Forbidden: Admins only')
+      expect(data.error).toBe('Insufficient permissions')
     })
 
     it('should allow admin access based on role property', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         ...mockUser,
-        role: 'admin',
+        role: 'admin', // ADMIN role has VIEW_SECURITY_LOGS permission
         email: 'someuser@test.com'
       })
       
@@ -170,13 +175,11 @@ describe('Security Logs API', () => {
       expect(response.status).toBe(200)
     })
 
-    it('should allow admin access based on ADMIN_EMAILS env var', async () => {
-      vi.stubEnv('ADMIN_EMAILS', 'admin1@test.com,admin2@test.com')
-      
+    it('should allow super admin access', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         ...mockUser,
-        role: 'user', // Not admin role
-        email: 'admin1@test.com' // But in admin emails
+        role: 'super_admin', // SUPER_ADMIN role has all permissions
+        email: 'superadmin@test.com'
       })
       
       const request = createMockRequest()
@@ -241,13 +244,13 @@ describe('Security Logs API', () => {
       expect(data.events[0].details).toEqual({})
     })
 
-    it('should return 403 when user not found in database', async () => {
+    it('should return 401 when user not found in database', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
       
       const request = createMockRequest()
       const response = await GET(request)
       
-      expect(response.status).toBe(403)
+      expect(response.status).toBe(401)
     })
 
     it('should handle database errors gracefully', async () => {
@@ -269,41 +272,20 @@ describe('Security Logs API', () => {
       const request = createMockRequest()
       const response = await GET(request)
       
-      expect(response.status).toBe(403) // getUserById returns null on error
+      expect(response.status).toBe(401) // getUserContext fails when user lookup fails
     })
 
-    it('should handle empty ADMIN_EMAILS environment variable', async () => {
-      vi.stubEnv('ADMIN_EMAILS', '')
-      
+    it('should not allow moderator access to security logs', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         ...mockUser,
-        role: 'user',
-        email: 'user@test.com'
+        role: 'moderator', // MODERATOR role doesn't have VIEW_SECURITY_LOGS permission
+        email: 'moderator@test.com'
       })
       
       const request = createMockRequest()
       const response = await GET(request)
       
       expect(response.status).toBe(403)
-      
-
-    })
-
-    it('should trim whitespace from admin emails in environment variable', async () => {
-      vi.stubEnv('ADMIN_EMAILS', ' admin1@test.com , admin2@test.com , ')
-      
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({
-        ...mockUser,
-        role: 'user',
-        email: 'admin2@test.com'
-      })
-      
-      const request = createMockRequest()
-      const response = await GET(request)
-      
-      expect(response.status).toBe(200)
-      
-
     })
   })
 })

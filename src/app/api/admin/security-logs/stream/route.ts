@@ -1,64 +1,17 @@
+/**
+ * Admin Security Logs Stream API Endpoint
+ * 
+ * This endpoint provides real-time security events via Server-Sent Events (SSE).
+ * Protected by RBAC - requires VIEW_SECURITY_LOGS permission.
+ */
+
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import { prisma } from '@/lib/database/prisma';
+import { withPermissionProtection } from '@/lib/auth/rbac-middleware';
+import { Permission } from '@/lib/auth/roles';
 import { EnhancedSecurityLogger } from "@/lib/security/EnhancedSecurityLogger";
 
-interface JwtPayload {
-  userId: string;
-}
-
-async function getUserFromToken() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token');
-
-  if (!token) {
-    return null;
-  }
-
+async function handleSecurityLogsStream(request: NextRequest, user: any) {
   try {
-    const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as JwtPayload;
-    return decoded.userId;
-  } catch (_error) {
-    return null;
-  }
-}
-
-async function getUserById(userId: string) {
-  try {
-    return await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true }
-    });
-  } catch (_error) {
-    return null;
-  }
-}
-
-// Helper function to check if user is admin (for template purposes)
-function isAdmin(user: { email: string } | null): boolean {
-  if (!user) return false;
-  // Use environment variable for admin emails, or implement proper role system
-  const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
-  const adminEmails = adminEmailsEnv.split(',').map(email => email.trim()).filter(email => email.length > 0);
-  return adminEmails.includes(user.email);
-}
-
-export async function GET(_req: NextRequest) {
-  try {
-    const userId = await getUserFromToken();
-    
-    // Check if user is authenticated
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    
-    // Enforce role-based access control: only admins can view security logs
-    const user = await getUserById(userId);
-    if (!isAdmin(user)) {
-      return NextResponse.json({ error: "Forbidden: Admins only" }, { status: 403 });
-    }
-
     // Set up SSE headers
     const headers = new Headers({
       'Content-Type': 'text/event-stream',
@@ -82,7 +35,11 @@ export async function GET(_req: NextRequest) {
             const eventData = {
               metrics,
               timestamp: new Date().toISOString(),
-              status: 'active'
+              status: 'active',
+              connectedUser: {
+                id: user.id,
+                email: user.email
+              }
             };
 
             controller.enqueue(`data: ${JSON.stringify(eventData)}\n\n`);
@@ -114,3 +71,9 @@ export async function GET(_req: NextRequest) {
     );
   }
 }
+
+// Export the protected route handler - requires VIEW_SECURITY_LOGS permission
+export const GET = withPermissionProtection(
+  Permission.VIEW_SECURITY_LOGS,
+  handleSecurityLogsStream
+);
