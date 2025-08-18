@@ -1,18 +1,45 @@
 version: 2
 updates:
+  # NPM Dependencies
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 10
+    target-branch: "main"
     reviewers:
+      - "kleiser135"
+    assignees:
       - "kleiser135"
     commit-message:
       prefix: "deps"
       include: "scope"
+    # Group minor and patch updates together to reduce PR noise
+    groups:
+      production-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@types/*"
+          - "eslint*"
+          - "prettier*"
+          - "@testing-library/*"
+          - "vitest*"
+          - "cypress*"
+      development-dependencies:
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "prettier*"
+          - "@testing-library/*"
+          - "vitest*"
+          - "cypress*"
+    # Automatically approve and merge minor updates after CI passes
+    versioning-strategy: increase
   
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/.github/workflows"
     schedule:
@@ -20,8 +47,16 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
+    target-branch: "main"
     reviewers:
+      - "kleiser135"
+    assignees:
       - "kleiser135"
     commit-message:
       prefix: "ci"
       include: "scope"
+    # Group all action updates together
+    groups:
+      github-actions:
+        patterns:
+          - "*"

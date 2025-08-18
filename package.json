@@ -13,11 +13,25 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest",
+    "test:once": "vitest run",
+    "test:ui": "vitest --ui",
     "db:seed": "prisma db seed",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
     "test:e2e": "cypress open",
     "test:e2e:run": "cypress run",
     "cypress:open": "cypress open",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "security:audit": "npm audit",
+    "security:fix": "npm audit fix",
+    "deps:check": "npm outdated",
+    "deps:update": "npx npm-check-updates -u",
+    "clean": "rm -rf .next node_modules/.cache",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "ts-node --esm prisma/seed.ts"

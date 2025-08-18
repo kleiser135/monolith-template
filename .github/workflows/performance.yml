@@ -1,0 +1,312 @@
+name: Performance Monitoring
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run performance tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "20.x"
+
+jobs:
+  # Lighthouse CI performance testing
+  lighthouse:
+    name: Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build application
+        run: npm run build
+        
+      - name: Start application
+        run: |
+          npm start &
+          sleep 10
+          
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun
+          
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          retention-days: 30
+          
+  # Bundle size analysis
+  bundle-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build and analyze bundle
+        run: |
+          npm run build
+          npx next-bundle-analyzer
+          
+      - name: Generate bundle report
+        run: |
+          echo "# 📦 Bundle Size Report - $(date +%Y-%m-%d)" > bundle-report.md
+          echo "" >> bundle-report.md
+          echo "## Build Output" >> bundle-report.md
+          echo "\`\`\`" >> bundle-report.md
+          du -sh .next/ >> bundle-report.md
+          echo "\`\`\`" >> bundle-report.md
+          echo "" >> bundle-report.md
+          echo "## Static Assets" >> bundle-report.md
+          echo "\`\`\`" >> bundle-report.md
+          find .next/static -type f -name "*.js" -o -name "*.css" | xargs ls -lh >> bundle-report.md
+          echo "\`\`\`" >> bundle-report.md
+          
+      - name: Upload bundle analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-analysis
+          path: |
+            bundle-report.md
+            .next/analyze/
+          retention-days: 30
+          
+  # Memory and CPU profiling
+  performance-profiling:
+    name: Performance Profiling
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install profiling tools
+        run: |
+          npm install -g clinic autocannon
+          
+      - name: Build application
+        run: npm run build
+        
+      - name: Profile application startup
+        run: |
+          timeout 30s clinic doctor -- npm start &
+          sleep 20
+          pkill -f "npm start" || true
+          
+      - name: Load testing
+        run: |
+          npm start &
+          APP_PID=$!
+          sleep 10
+          
+          # Run load test
+          autocannon -c 10 -d 30 -j http://localhost:3000 > load-test-results.json
+          
+          kill $APP_PID || true
+          
+      - name: Generate performance report
+        run: |
+          echo "# ⚡ Performance Report - $(date +%Y-%m-%d)" > performance-report.md
+          echo "" >> performance-report.md
+          echo "## Load Test Results" >> performance-report.md
+          echo "\`\`\`json" >> performance-report.md
+          cat load-test-results.json >> performance-report.md
+          echo "\`\`\`" >> performance-report.md
+          
+      - name: Upload performance reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-reports
+          path: |
+            performance-report.md
+            load-test-results.json
+            .clinic/
+          retention-days: 30
+          
+  # Database performance testing
+  database-performance:
+    name: Database Performance Testing
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: perf_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Setup test database
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/perf_test" > .env.test
+          npx prisma generate
+          npx prisma db push
+          
+      - name: Seed performance test data
+        run: |
+          node -e "
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          
+          async function seedData() {
+            console.log('Creating test users...');
+            for (let i = 0; i < 1000; i++) {
+              await prisma.user.create({
+                data: {
+                  email: \`test\${i}@example.com\`,
+                  name: \`Test User \${i}\`,
+                  hashedPassword: 'test'
+                }
+              });
+              if (i % 100 === 0) console.log(\`Created \${i} users\`);
+            }
+            console.log('Seeding complete!');
+          }
+          
+          seedData().catch(console.error).finally(() => prisma.\$disconnect());
+          "
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/perf_test
+          
+      - name: Run database performance tests
+        run: |
+          node -e "
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          
+          async function perfTest() {
+            console.log('Running database performance tests...');
+            
+            const start = Date.now();
+            
+            // Test 1: Simple query
+            const simpleStart = Date.now();
+            await prisma.user.findMany({ take: 100 });
+            const simpleTime = Date.now() - simpleStart;
+            
+            // Test 2: Complex query with filtering
+            const complexStart = Date.now();
+            await prisma.user.findMany({
+              where: {
+                email: { contains: 'test1' }
+              },
+              take: 50
+            });
+            const complexTime = Date.now() - complexStart;
+            
+            // Test 3: Count query
+            const countStart = Date.now();
+            const count = await prisma.user.count();
+            const countTime = Date.now() - countStart;
+            
+            const results = {
+              totalUsers: count,
+              simpleQueryTime: simpleTime,
+              complexQueryTime: complexTime,
+              countQueryTime: countTime,
+              totalTestTime: Date.now() - start
+            };
+            
+            console.log('Performance test results:', JSON.stringify(results, null, 2));
+            require('fs').writeFileSync('db-perf-results.json', JSON.stringify(results, null, 2));
+          }
+          
+          perfTest().catch(console.error).finally(() => prisma.\$disconnect());
+          "
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/perf_test
+          
+      - name: Upload database performance results
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-performance
+          path: db-perf-results.json
+          retention-days: 30
+          
+  # Performance regression detection
+  performance-comparison:
+    name: Performance Regression Detection
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: [lighthouse, bundle-analysis, performance-profiling]
+    steps:
+      - name: Download current results
+        uses: actions/download-artifact@v4
+        with:
+          path: current-results/
+          
+      - name: Compare with baseline
+        run: |
+          echo "# 📊 Performance Comparison Report" > comparison-report.md
+          echo "" >> comparison-report.md
+          echo "Comparing performance metrics against baseline..." >> comparison-report.md
+          echo "" >> comparison-report.md
+          
+          # This would compare against stored baseline metrics
+          echo "⚠️ Performance regression detection requires baseline storage setup" >> comparison-report.md
+          echo "Consider implementing performance budgets and alerts" >> comparison-report.md
+          
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('comparison-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
