@@ -54,3 +54,12 @@ node_modules/
 /cypress/fixtures/example.json
 cypress.config.ts.orig
 /cypress/downloads/
+
+# Deployment bundles and large files
+*.tar.gz
+*.zip
+*.7z
+*.rar
+deployment-bundle.*
+dist-bundle.*
+build-bundle.*
