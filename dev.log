@@ -1,0 +1,268 @@
+
+> nextjs-fullstack-template@1.0.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use by process 12524, using available port 3001 instead.
+   ▲ Next.js 15.4.4
+   - Local:        http://localhost:3001
+   - Network:      http://10.5.0.2:3001
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 1541ms
+ ✓ Compiled /middleware in 132ms (116 modules)
+[Middleware] /
+ ○ Compiling / ...
+ ✓ Compiled / in 1464ms (1997 modules)
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 200 in 1881ms
+ ✓ Compiled in 842ms (2011 modules)
+[Middleware] /
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 200 in 107ms
+ ✓ Compiled /_not-found in 466ms (2012 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/781a625ff028c083.webpack.hot-update.json 404 in 723ms
+[Middleware] /
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 200 in 52ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\cache\webpack\server-development\1.pack.gz_' -> 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\cache\webpack\server-development\1.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\cache\webpack\client-development\3.pack.gz_' -> 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\cache\webpack\client-development\3.pack.gz'
+ ✓ Compiled in 489ms (2011 modules)
+[Middleware] /
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 200 in 49ms
+ ✓ Compiled in 501ms (2011 modules)
+[Middleware] /
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 200 in 47ms
+[Error: Cannot apply unknown utility class `font-heading`]
+ ✓ Compiled in 211ms (2011 modules)
+[Middleware] /
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\prerender-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\prerender-manifest.json',
+  page: '/'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1214ms (2323 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\prerender-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\prerender-manifest.json'
+}
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 500 in 2979ms
+[Middleware] /
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\prerender-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\prerender-manifest.json',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\prerender-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\prerender-manifest.json'
+}
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 500 in 438ms
+[Middleware] /
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\prerender-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\prerender-manifest.json',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\prerender-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\prerender-manifest.json'
+}
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 500 in 375ms
+[Middleware] /
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\prerender-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\prerender-manifest.json',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\prerender-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\prerender-manifest.json'
+}
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 500 in 433ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\cache\webpack\client-development-fallback\0.pack.gz_' -> 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\cache\webpack\client-development-fallback\0.pack.gz'
+[Error: Cannot apply unknown utility class `text-display-md`]
+ ✓ Compiled in 276ms (2337 modules)
+[Middleware] /
+ ✓ Compiled /_not-found in 221ms (1349 modules)
+[Middleware] /
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\routes-manifest.json'
+}
+ GET /_next/static/webpack/cd453db6fe72ed62.webpack.hot-update.json 500 in 534ms
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 500 in 534ms
+ ⨯ Error: Cannot find module './548.js'
+Require stack:
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\webpack-runtime.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\app\_not-found\page.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\require.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\load-components.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\utils.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\swc\options.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\swc\index.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\analysis\parse-module.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\analysis\get-page-static-info.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './548.js'
+Require stack:
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\webpack-runtime.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\app\_not-found\page.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\require.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\load-components.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\utils.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\swc\options.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\swc\index.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\analysis\parse-module.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\analysis\get-page-static-info.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Middleware] /
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './548.js'
+Require stack:
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\webpack-runtime.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\app\_not-found\page.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\require.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\load-components.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\utils.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\swc\options.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\swc\index.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\analysis\parse-module.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\build\analysis\get-page-static-info.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET /?id=6da7a439-a671-457c-9093-716db9eb3f55&vscodeBrowserReqId=1755752649415 500 in 150ms
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\kleis\Documents\Cursor-Projects\Pipelines\App-Template\monolith-template\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\kleis\\Documents\\Cursor-Projects\\Pipelines\\App-Template\\monolith-template\\.next\\routes-manifest.json'
+}
+ GET /_next/static/chunks/fallback/webpack.js 500 in 753ms
+ GET /_next/static/chunks/fallback/react-refresh.js 500 in 752ms
+ GET /_next/static/chunks/fallback/main.js 500 in 751ms
+ GET /_next/static/chunks/fallback/pages/_app.js 500 in 750ms
+ GET /_next/static/chunks/fallback/pages/_error.js 500 in 749ms
+[Error: Cannot apply unknown utility class `text-heading-lg`]
+ ✓ Compiled in 448ms (2337 modules)
+[Error: Cannot apply unknown utility class `text-heading-md`]
+ ✓ Compiled in 247ms (2337 modules)
+[Error: Cannot apply unknown utility class `text-heading-sm`]
+ ✓ Compiled in 221ms (2337 modules)
+[Error: Cannot apply unknown utility class `text-body-md`]
+ ✓ Compiled in 232ms (2337 modules)
+ ✓ Compiled in 549ms (2337 modules)
+ ✓ Compiled in 233ms (989 modules)
+ ✓ Compiled in 65ms (975 modules)
+ ⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+   ▲ Next.js 15.4.4
+   - Local:        http://localhost:3001
+   - Network:      http://10.5.0.2:3001
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · allowedDevOrigins
+
+ ✓ Starting...
+ ⚠ Invalid next.config.mjs options detected: 
+ ⚠     Unrecognized key(s) in object: 'allowedDevOrigins' at "experimental"
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ✓ Ready in 1508ms
+ ⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+   ▲ Next.js 15.4.4
+   - Local:        http://localhost:3001
+   - Network:      http://10.5.0.2:3001
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 1553ms
+ ⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+   ▲ Next.js 15.4.4
+   - Local:        http://localhost:3001
+   - Network:      http://10.5.0.2:3001
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 1484ms
+^C
