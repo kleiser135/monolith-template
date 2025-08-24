@@ -31,7 +31,7 @@ describe("TemplateLanding", () => {
   it("renders Get Started and Sign In buttons", () => {
     const getStartedLinks = screen.getAllByRole("link", { name: /get started/i });
     const signInLinks = screen.getAllByRole("link", { name: /sign in/i });
-    
+
     expect(getStartedLinks.length).toBeGreaterThan(0);
     expect(signInLinks.length).toBeGreaterThan(0);
   });
@@ -80,15 +80,15 @@ describe("TemplateLanding", () => {
   it("has proper navigation links in hero section", () => {
     const getStartedLinks = screen.getAllByRole("link", { name: /get started/i });
     const signInLinks = screen.getAllByRole("link", { name: /sign in/i });
-    
+
     // Check that we have the expected links
     expect(getStartedLinks.length).toBeGreaterThanOrEqual(1);
     expect(signInLinks.length).toBeGreaterThanOrEqual(1);
-    
+
     // Check that at least one Get Started link goes to signup
     const signupLinks = getStartedLinks.filter(link => link.getAttribute("href") === "/signup");
     expect(signupLinks.length).toBeGreaterThan(0);
-    
+
     // Check that at least one Sign In link goes to login
     const loginLinks = signInLinks.filter(link => link.getAttribute("href") === "/login");
     expect(loginLinks.length).toBeGreaterThan(0);

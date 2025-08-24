@@ -1,5 +1,5 @@
-import CardboardLandingPage from "@/components/features/landing/CardboardLanding";
+import { TemplateLanding } from "@/components/features/landing/TemplateLanding";
 
 export default function LandingPage() {
-  return <CardboardLandingPage />;
+  return <TemplateLanding />;
 }

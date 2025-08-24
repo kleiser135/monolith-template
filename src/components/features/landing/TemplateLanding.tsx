@@ -25,7 +25,7 @@ export function TemplateLanding() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <motion.section 
+      <motion.section
         initial="initial"
         animate="animate"
         variants={staggerChildren}
@@ -39,7 +39,7 @@ export function TemplateLanding() {
             Build Your Next App
           </h1>
           <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
-            A modern, production-ready Next.js template with authentication, testing, and beautiful UI components. 
+            A modern, production-ready Next.js template with authentication, testing, and beautiful UI components.
             Skip the boilerplate and start building features from day one.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -56,7 +56,7 @@ export function TemplateLanding() {
       </motion.section>
 
       {/* Features Section */}
-      <motion.section 
+      <motion.section
         initial="initial"
         whileInView="animate"
         viewport={{ once: true }}
@@ -73,7 +73,7 @@ export function TemplateLanding() {
             </p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             variants={staggerChildren}
             className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none"
           >
@@ -90,7 +90,7 @@ export function TemplateLanding() {
                   </CardHeader>
                   <CardContent>
                     <CardDescription>
-                      Complete authentication system with login, signup, password reset, 
+                      Complete authentication system with login, signup, password reset,
                       email verification, and protected routes out of the box.
                     </CardDescription>
                     <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -114,7 +114,7 @@ export function TemplateLanding() {
                   </CardHeader>
                   <CardContent>
                     <CardDescription>
-                      Comprehensive testing setup with unit tests, integration tests, 
+                      Comprehensive testing setup with unit tests, integration tests,
                       and end-to-end testing using Vitest and Cypress.
                     </CardDescription>
                     <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -138,7 +138,7 @@ export function TemplateLanding() {
                   </CardHeader>
                   <CardContent>
                     <CardDescription>
-                      Modern, accessible UI components built with Radix UI and Tailwind CSS. 
+                      Modern, accessible UI components built with Radix UI and Tailwind CSS.
                       Dark mode support and smooth animations included.
                     </CardDescription>
                     <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -155,7 +155,7 @@ export function TemplateLanding() {
       </motion.section>
 
       {/* How It Works Section */}
-      <motion.section 
+      <motion.section
         initial="initial"
         whileInView="animate"
         viewport={{ once: true }}
@@ -172,7 +172,7 @@ export function TemplateLanding() {
             </p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             variants={staggerChildren}
             className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl"
           >
