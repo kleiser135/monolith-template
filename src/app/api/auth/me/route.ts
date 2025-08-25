@@ -16,8 +16,17 @@ interface JwtPayload {
 
 export async function GET(request: NextRequest) {
   try {
+    // Extract token from cookie (web) or Authorization header (mobile)
     const cookieStore = await cookies();
-    const token = cookieStore.get('token');
+    let token = cookieStore.get('token')?.value;
+
+    // Check for Bearer token if no cookie token
+    if (!token) {
+      const authHeader = request.headers.get('Authorization');
+      if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
 
     if (!token) {
       return NextResponse.json(
@@ -26,7 +35,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as JwtPayload;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
     
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },

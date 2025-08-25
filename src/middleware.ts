@@ -102,9 +102,43 @@ function createResponseWithClearedToken(redirectUrl: string, request: NextReques
   return response;
 }
 
+/**
+ * Extracts token from request - supports both cookie (web) and Bearer token (mobile)
+ */
+function extractToken(request: NextRequest): { value: string; name: string } | undefined {
+  // First check for cookie token (web app)
+  const tokenCookie = request.cookies.get('token');
+  if (tokenCookie) {
+    return tokenCookie;
+  }
+  
+  // Check for Bearer token (mobile app)
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    return { name: 'token', value: token };
+  }
+  
+  return undefined;
+}
+
+/**
+ * Detects client type based on headers and user agent
+ */
+function getClientType(request: NextRequest): 'web' | 'mobile' {
+  const clientHeader = request.headers.get('X-Client-Type');
+  const userAgent = request.headers.get('User-Agent') || '';
+  
+  if (clientHeader === 'mobile') return 'mobile';
+  if (/Mobile|Android|iPhone|iPad|React Native/i.test(userAgent)) return 'mobile';
+  
+  return 'web';
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const tokenCookie = request.cookies.get('token');
+  const tokenCookie = extractToken(request);
+  const clientType = getClientType(request);
   
   // Only log in development mode
   const isDev = process.env.NODE_ENV === 'development';
@@ -137,17 +171,32 @@ export function middleware(request: NextRequest) {
 
   // CSRF protection for API routes with state-changing methods
   if (pathname.startsWith('/api/') && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
-    const csrfResult = validateCSRF(request);
-    
-    if (!csrfResult.valid) {
+    // Skip CSRF for mobile clients - they identify with X-Client-Type header
+    // or use Bearer tokens (which aren't susceptible to CSRF attacks)
+    // Also skip CSRF for test endpoints in development
+    if (clientType === 'mobile') {
+      // Mobile clients don't need CSRF protection as they're not susceptible to CSRF attacks
       if (isDev) {
-        console.log(`[Middleware] CSRF validation failed: ${csrfResult.error}`);
+        console.log(`[Middleware] Skipping CSRF validation for mobile client: ${pathname}`);
       }
+    } else if (isDev && pathname.startsWith('/api/test/')) {
+      // Skip CSRF for test endpoints in development
+      if (isDev) {
+        console.log(`[Middleware] Skipping CSRF validation for test endpoint: ${pathname}`);
+      }
+    } else {
+      const csrfResult = validateCSRF(request);
       
-      return NextResponse.json(
-        { message: 'CSRF validation failed', error: csrfResult.error },
-        { status: 403 }
-      );
+      if (!csrfResult.valid) {
+        if (isDev) {
+          console.log(`[Middleware] CSRF validation failed: ${csrfResult.error}`);
+        }
+        
+        return NextResponse.json(
+          { message: 'CSRF validation failed', error: csrfResult.error },
+          { status: 403 }
+        );
+      }
     }
   }
 
@@ -204,9 +253,18 @@ export function middleware(request: NextRequest) {
   if (matchesRoutes(pathname, ROUTE_CONFIG.PROTECTED_ROUTES)) {
     if (!isAuthenticated) {
       if (isDev) {
-        console.log(`[Middleware] Protected route blocked: ${pathname} -> /login`);
+        console.log(`[Middleware] Protected route blocked: ${pathname} -> ${clientType === 'mobile' ? 'API response' : '/login'}`);
       }
-      // Clear invalid token if present and redirect to login
+      
+      // For mobile clients, return JSON response instead of redirect
+      if (clientType === 'mobile') {
+        return NextResponse.json(
+          { message: 'Authentication required', error: 'UNAUTHORIZED' },
+          { status: 401 }
+        );
+      }
+      
+      // For web clients, clear invalid token if present and redirect to login
       if (hasInvalidToken) {
         return createResponseWithClearedToken(ROUTE_CONFIG.UNAUTHENTICATED_REDIRECT, request);
       }
@@ -225,9 +283,11 @@ export function middleware(request: NextRequest) {
       // Already logged in, redirect to dashboard
       return NextResponse.redirect(new URL(ROUTE_CONFIG.AUTHENTICATED_REDIRECT, request.url));
     }
+    
+    const response = NextResponse.next();
+    
     // Clear invalid token if present but still show the auth page
     if (hasInvalidToken) {
-      const response = NextResponse.next();
       response.cookies.set('token', '', { 
         expires: new Date(0),
         httpOnly: true,
@@ -235,10 +295,22 @@ export function middleware(request: NextRequest) {
         sameSite: 'strict',
         path: '/',
       });
-      return response;
     }
-    // User is not authenticated, allow access to auth pages
-    return NextResponse.next();
+    
+    // Add CSRF token for auth pages that have forms
+    if (pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/reset-password') {
+      try {
+        const csrfToken = generateCSRFToken();
+        setCSRFCookie(response, csrfToken);
+      } catch (error) {
+        // If CSRF token generation fails, log error but don't block the request
+        if (isDev) {
+          console.log(`[Middleware] Failed to generate CSRF token for ${pathname}:`, error);
+        }
+      }
+    }
+    
+    return response;
   }
   
   // Handle public routes - allow access regardless of auth status
@@ -247,8 +319,15 @@ export function middleware(request: NextRequest) {
     
     // Add CSRF token for pages that might have forms
     if (pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password') {
-      const csrfToken = generateCSRFToken();
-      setCSRFCookie(response, csrfToken);
+      try {
+        const csrfToken = generateCSRFToken();
+        setCSRFCookie(response, csrfToken);
+      } catch (error) {
+        // If CSRF token generation fails, log error but don't block the request
+        if (isDev) {
+          console.log(`[Middleware] Failed to generate CSRF token for ${pathname}:`, error);
+        }
+      }
     }
     
     return response;

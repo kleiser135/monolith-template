@@ -21,10 +21,28 @@ model User {
   password            String
   avatar              String?   // URL to avatar image
   role                String    @default("user") // Role-based access control
+  
+  // Extended profile fields
+  bio                 String?   @db.Text
+  phone               String?
+  company             String?
+  jobTitle            String?
+  location            String?
+  website             String?
+  
+  // User preferences and settings (JSON for flexibility)
+  settings            Json?     @default("{}")
+  
+  // Feature flags and boolean preferences
+  emailNotifications  Boolean   @default(true)
+  marketingEmails     Boolean   @default(false)
+  twoFactorEnabled    Boolean   @default(false)
+  
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   passwordResetTokens PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
+  refreshTokens       RefreshToken[]
   securityLogs        SecurityLog[]
 }
 
@@ -44,6 +62,25 @@ model EmailVerificationToken {
   expiresAt DateTime
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  lastUsed  DateTime?
+  deviceId  String?  // Optional device identifier for security
+  ipAddress String?  // IP address where token was created
+  userAgent String?  // User agent for security tracking
+  isRevoked Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@index([isRevoked])
 }
 
 model SecurityLog {
