@@ -10,7 +10,6 @@ import {
   revokeRefreshToken,
   revokeAllUserTokens,
   revokeDeviceTokens,
-  cleanupUserTokens,
   cleanupExpiredTokens,
   getUserTokenStats,
   REFRESH_TOKEN_CONFIG

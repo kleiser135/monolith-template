@@ -345,7 +345,7 @@ describe('RBAC Middleware', () => {
 
       const protectedHandler = withPermissionProtection(Permission.ACCESS_ADMIN_PANEL, mockHandler)
       const request = createMockRequest()
-      const result = await protectedHandler(request)
+      await protectedHandler(request)
 
       expect(mockHandler).toHaveBeenCalledWith(request, {
         id: 'user-123',

@@ -25,7 +25,7 @@ interface UserContext {
 /**
  * Get user context from JWT token
  */
-export async function getUserContext(request: NextRequest): Promise<UserContext | null> {
+export async function getUserContext(_request: NextRequest): Promise<UserContext | null> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('token');

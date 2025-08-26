@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { checkRateLimit, RATE_LIMITS, getRateLimitIdentifier, createRateLimitMiddleware } from '@/lib/redis/rate-limiter';
 
 // Mock Redis client
